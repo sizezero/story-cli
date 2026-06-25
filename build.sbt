@@ -8,6 +8,8 @@ lazy val root = project
 
     scalaVersion := scala3Version,
 
+    exportJars := true,
+
     libraryDependencies += "org.scalameta" %% "munit" % "1.3.2" % Test,
 
     // June 2026: I tried to use newer versions but they failed

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+if [[ $# -ne 1 || ( "$1" != "local" && "$1" != "remote" ) ]]; then
+    echo "usage: deploy ( local | remote )"
+    exit 1
+fi
+
+ARG="$1"
+SCRIPT="story-cli"
+JAR="story-cli-assembly-0.1.0-SNAPSHOT.jar"
+SRC_SCRIPT="src/scripts"
+SRC_JAR="target/scala-3.8.4"
+DST_SCRIPT="$HOME/bin/share/story-cli/src/scripts"
+DST_JAR="$HOME/bin/share/story-cli/target/scala-3.8.4"
+
+if [[ "$ARG" == "local"  ]]; then
+
+    sbt clean    || exit 1
+    sbt compile  || exit 1
+    sbt assembly || exit 1
+
+    if [[ ! -e "$DST_SCRIPT" ]]; then
+        mkdir -p "$DST_SCRIPT"
+    fi
+
+    if [[ ! -e "$DST_JAR" ]]; then
+        mkdir -p "$DST_JAR"
+    fi
+
+    cp "$SRC_SCRIPT/$SCRIPT" "$DST_SCRIPT"
+    cp "$SRC_JAR/$JAR"       "$DST_JAR"
+
+elif [[ "$ARG" == "remote" ]]; then
+
+    # copy from already deployed local to remote
+    # this makes it more likely that the local and remote are in sync
+
+    # script is rarely updated; uncomment this temporarily if necessary
+    #scp "$DST_SCRIPT/$SCRIPT" robert@hector:$DST_SCRIPT
+
+    scp "$DST_JAR/$JAR"       robert@hector:$DST_JAR
+
+else
+    echo "unexpected argument value: $ARG"
+    exit 1
+fi
