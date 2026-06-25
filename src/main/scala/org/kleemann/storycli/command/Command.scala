@@ -10,8 +10,7 @@ trait Command {
 
 object Command {
 
-
-    def parse(args: List[String]): Either[String, (GlobalOptions, List[String])] = {
+    protected[command] def parse(args: List[String]): Either[String, (GlobalOptions, List[String])] = {
 
         val commandRe = """([a-z]+)""".r
 
@@ -35,6 +34,7 @@ object Command {
                         else loop(args.tail, help, production, development, command)
                     // stop processing args when command is reached
                     case commandRe(cmd)  => Right((help, production, development, Some(cmd), args.tail))
+                    case arg => Left(s"unrecognized argument: $arg")
                 }
             }
         }
