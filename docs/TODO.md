@@ -24,9 +24,11 @@
 * ~~list~~
     * start with remote named stories/repos
 * checkout
-    * simple non directory name
-    * looks for existence in server
-    * looks for collision in client
+    * ~~simple non directory name~~
+    * ~~looks for existence in server~~
+    * ~~looks for collision in client~~
+    * change name to clone
+* allow directory prefix for new
 * backup
   * server only
   * src ~/story-cli/

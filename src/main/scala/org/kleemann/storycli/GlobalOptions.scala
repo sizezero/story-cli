@@ -13,4 +13,6 @@ case class GlobalOptions(args: List[String], isProduction: Boolean, command: Str
     // seems dumb but correct to hardcode these
     val userName = "robert"
     val serverName = "olivia"
+
+    val productionOption: String = if (isProduction) "--production" else "--development"
 }
