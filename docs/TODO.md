@@ -28,7 +28,7 @@
     * ~~looks for existence in server~~
     * ~~looks for collision in client~~
     * ~~change name to clone~~
-* allow directory prefix for new
+* ~~allow new story in an arbitrary directory~~
 * backup
   * server only
   * src ~/story-cli/

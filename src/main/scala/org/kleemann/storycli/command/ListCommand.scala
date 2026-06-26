@@ -18,7 +18,7 @@ object ListCommand extends Command {
                 val sf = StoriesFolder(go)
                 if (sf.isServer) {
                     // walk through all dirs until a directory that ends in .git
-                    // 3. Skip specific directories while walking (e.g., ignoring hidden or build folders)
+                    // we have to go one directory further since skipped files will not show up in the list
                     val customizedWalk = os.walk(
                         sf.serverStories,
                         skip = path => (path / os.up).last.endsWith(".git")

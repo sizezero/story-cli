@@ -13,19 +13,21 @@ object NewCommand extends Command {
       */
     def run(go: GlobalOptions): Either[String, List[String]] = {
 
-        val storyDirRe = """^[a-z][a-z0-9-]*$""".r
+        val storyDirRe = """^[a-z][a-z0-9-/]*$""".r
         if (go.rest.length != 1 || !storyDirRe.matches(go.rest.head))
-            Left(s"new command argument but be single story name of letters, numbers, and hyphen: ${go.rest.head}")
+            Left(s"new command argument but be single story name of letters, numbers, slashes and hyphens: ${go.rest.head}")
         else {
-            val arg = go.rest.head
             val sf = StoriesFolder(go)
             if (sf.isServer) {
                 if (!os.exists(sf.serverTemplate)) Left(s"source directory doesn't exist: ${sf.serverTemplate}")
                 else {
-                    val dst = sf.serverStories / (arg+".git")
+                    val arg = go.rest.head
+                    val dst = sf.serverStories / os.SubPath(arg+".git")
                     if (os.exists(dst)) Left(s"target story repo already exists: ${dst.toString}")
                     else {
-                        // os.copy() does not preserve permissions
+                        // create prefix dir if needed
+                        os.makeDir.all(dst / os.up)
+                        // os.copy() does not preserve permissions so we need "cp -a"
                         val result = os.proc("cp", "-a", sf.serverTemplate, dst).call()
                         if (result.exitCode == 0) Right(List(s"Created story repo: ${arg}"))
                         else Left(result.err.text()+result.out.text())
