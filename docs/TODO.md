@@ -27,3 +27,27 @@
     * simple non directory name
     * looks for existence in server
     * looks for collision in client
+* backup
+  * server only
+  * src ~/story-cli/
+  * dst
+    * ~/to-delete/story-cli/
+      * development/
+      * production/
+        * <date-time>/
+  * create all dirs as necessary* convert current book
+    * copy template
+    * checkout on olivia
+    * manually convert files from olivia
+* list option
+    * -p,--premise one line premise indented under book title
+* show command
+    * current checked out directory or named remote
+    * content
+        * title
+        * premise
+        * characters names with roles
+        * draft length or wordcount?
+* analyze command
+    * other names: table, incidents,
+    * options -c,--csv -s,--sc
