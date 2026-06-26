@@ -18,7 +18,7 @@
         * script takes olivia or hector argument
         * hector copies from olivia production location
 * ~~add parsing tests~~
-* simple new command that just copies template to a file at the root of stories
+* ~~simple new command that just copies template to a file at the root of stories~~
     * server first
     * client second; figure out how to reuse code between client and server
 * list

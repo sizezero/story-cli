@@ -17,13 +17,13 @@ class TestCommand extends munit.FunSuite {
         // all of our tests run in development mode
         assertEquals( 
             Command.parse(List("help")), 
-            Right(GlobalOptions(false, "help"), Nil) )
+            Right(GlobalOptions(List("help"), false, "help", Nil)) )
     }
 
     test("explicit development") {
         assertEquals( 
             Command.parse(List("--development", "help")), 
-            Right(GlobalOptions(false, "help"), Nil) )
+            Right(GlobalOptions(List("--development", "help"), false, "help", Nil)) )
     }
 
     test("production and development conflict") {
@@ -39,10 +39,12 @@ class TestCommand extends munit.FunSuite {
     }
 
     test("all versions of help") {
-        val expected = Right(GlobalOptions(false, "help"), Nil)
-        assertEquals( Command.parse(List("-h")),     expected )
-        assertEquals( Command.parse(List("--help")), expected )
-        assertEquals( Command.parse(List("help")),   expected )
+        assertEquals( Command.parse(List("-h")),
+            Right(GlobalOptions(List("-h"), false, "help", Nil)) )
+        assertEquals( Command.parse(List("--help")),
+            Right(GlobalOptions(List("--help"), false, "help", Nil)) )
+        assertEquals( Command.parse(List("help")),
+            Right(GlobalOptions(List("help"), false, "help", Nil)) )
     }
 
     test("--production can't be specified from a non-production location") {

@@ -5,12 +5,12 @@ import os.home
 import org.kleemann.storycli.GlobalOptions
 
 trait Command {
-    def run(go: GlobalOptions, rest: List[String]): Either[String, List[String]]
+    def run(go: GlobalOptions): Either[String, List[String]]
 }
 
 object Command {
 
-    protected[command] def parse(args: List[String]): Either[String, (GlobalOptions, List[String])] = {
+    protected[command] def parse(args: List[String]): Either[String, GlobalOptions] = {
 
         val commandRe = """([a-z]+)""".r
 
@@ -53,15 +53,15 @@ object Command {
                         val binPath: String = (os.home / "bin").toString
                         val isProductionLocation: Boolean = jarPath.startsWith(binPath)
                         if (isProductionLocation) {
-                            if (production)       Right(GlobalOptions(true,  command), rest)
-                            else if (development) Right(GlobalOptions(false, command), rest)
+                            if (production)       Right(GlobalOptions(args, true, command, rest))
+                            else if (development) Right(GlobalOptions(args, false, command, rest))
                             // production is the default when running from production location
-                            else                  Right(GlobalOptions(true,  command), rest)
+                            else                  Right(GlobalOptions(args, true,  command, rest))
                         } else {
                             if (production)       Left("Cannot specify --production when running from a non-production location")
-                            else if (development) Right(GlobalOptions(false, command), rest)
+                            else if (development) Right(GlobalOptions(args, false, command, rest))
                             // development is the default when running from production location
-                            else                  Right(GlobalOptions(false,  command), rest)
+                            else                  Right(GlobalOptions(args, false,  command, rest))
                         }
                     }
                 }
@@ -83,10 +83,10 @@ object Command {
     def run(args: List[String]): Either[String, List[String]] = {
         parse(args) match {
             case Left(error) => Left(error)
-            case Right(go, rest) => {
+            case Right(go) => {
                 all.get(go.command) match {
                     case None          => Left(s"command not found: ${go.command}")
-                    case Some(command) => command.run(go, rest)
+                    case Some(command) => command.run(go)
                 }
             }
         }

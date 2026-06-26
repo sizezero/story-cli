@@ -11,19 +11,17 @@ object NewCommand extends Command {
       * @param rest
       * @return
       */
-    def run(go: GlobalOptions, rest: List[String]): Either[String, List[String]] = {
+    def run(go: GlobalOptions): Either[String, List[String]] = {
 
         val storyDirRe = """^[a-z][a-z0-9-]*$""".r
-        if (rest.length != 1 || !storyDirRe.matches(rest.head))
-            Left(s"new command argument but be single story name of letters, numbers, and hyphen: ${rest.head}")
+        if (go.rest.length != 1 || !storyDirRe.matches(go.rest.head))
+            Left(s"new command argument but be single story name of letters, numbers, and hyphen: ${go.rest.head}")
         else {
-            val arg = rest.head
+            val arg = go.rest.head
             StoriesFolder.create(go) match {
                 case Left(sf: StoriesFolder) => {
-                    // client is always in the production location so just pass isProduction as a development flag
-                    // TODO: it could be helpful to have the full command line available in go; I can't see why we wouldn't pass it here
-                    val flag = if (go.isProduction) "--production" else "--development"
-                    val cmd = s"story-cli ${flag} new ${arg}"
+                    // client is always in the production location so just pass the same --development or --production flag to the server
+                    val cmd = ("story-cli" :: go.args).mkString(" ")
                     val result = os.proc("ssh", s"${go.userName}@${go.serverName}", cmd).call()
                     if (result.exitCode == 0) Right(result.out.lines().toList)
                     else Left(result.err.text()+result.out.text())
