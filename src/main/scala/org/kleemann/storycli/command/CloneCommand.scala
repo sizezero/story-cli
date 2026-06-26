@@ -2,7 +2,7 @@ package org.kleemann.storycli.command
 
 import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
 
-object CheckoutCommand extends Command {
+object CloneCommand extends Command {
 
     val storyRe = """^[a-z][a-z0-9-/]*$""".r
 

@@ -69,11 +69,11 @@ object Command {
         }
     }
 
-    private val all: Map[String, Command] = Map[String, Command](
-        "help"     -> HelpCommand,
-        "new"      -> NewCommand,
-        "list"     -> ListCommand,
-        "checkout" -> CheckoutCommand
+    private val all = Map[String, Command](
+        "help"  -> HelpCommand,
+        "new"   -> NewCommand,
+        "list"  -> ListCommand,
+        "clone" -> CloneCommand
     )
 
     /**

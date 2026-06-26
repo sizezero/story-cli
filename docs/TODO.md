@@ -23,11 +23,11 @@
     * client second; figure out how to reuse code between client and server
 * ~~list~~
     * start with remote named stories/repos
-* checkout
+* ~~checkout~~
     * ~~simple non directory name~~
     * ~~looks for existence in server~~
     * ~~looks for collision in client~~
-    * change name to clone
+    * ~~change name to clone~~
 * allow directory prefix for new
 * backup
   * server only
