@@ -29,15 +29,14 @@
     * ~~looks for collision in client~~
     * ~~change name to clone~~
 * ~~allow new story in an arbitrary directory~~
-* backup
+* ~~backup~~
   * server only
   * src ~/story-cli/
   * dst
-    * ~/to-delete/story-cli/
-      * development/
-      * production/
-        * <date-time>/
-  * create all dirs as necessary* convert current book
+    * ~/to-delete/story-cli/<date-time>
+    * this is not a dangerous command so don't differentiate between development and production
+      * we don't want pieces of the backup that we have to fiddle with later, we want a pristine copy of the whole tree
+* convert current book
     * copy template
     * checkout on olivia
     * manually convert files from olivia
