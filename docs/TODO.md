@@ -21,7 +21,7 @@
 * ~~simple new command that just copies template to a file at the root of stories~~
     * server first
     * client second; figure out how to reuse code between client and server
-* list
+* ~~list~~
     * start with remote named stories/repos
 * checkout
     * simple non directory name
