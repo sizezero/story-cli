@@ -31,7 +31,7 @@ object Command {
                     case "--development"  =>
                         if (development) Left("--development specified twice")
                         else if (production) Left("--development and production cannot both be specified")
-                        else loop(args.tail, help, production, development, command)
+                        else loop(args.tail, help, production, true, command)
                     // stop processing args when command is reached
                     case commandRe(cmd)  => Right((help, production, development, Some(cmd), args.tail))
                     case arg => Left(s"unrecognized argument: $arg")
@@ -69,8 +69,9 @@ object Command {
         }
     }
 
-    private val all: Map[String, Command] = Map(
-        "help" -> HelpCommand
+    private val all: Map[String, Command] = Map[String, Command](
+        "help" -> HelpCommand,
+        "new"  -> NewCommand
     )
 
     /**
