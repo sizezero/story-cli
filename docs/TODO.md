@@ -42,7 +42,7 @@
     * ~~copy template~~
     * ~~checkout on olivia~~
     * ~~manually convert files from olivia~~
-* list option
+* ~~list option~~
     * -p,--premise one line premise indented under book title
 * show command
     * current checked out directory or named remote
