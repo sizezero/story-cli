@@ -1,7 +1,7 @@
 package org.kleemann.storycli.command
 
 import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
-import org.kleemann.storycli.meta.Premise
+import org.kleemann.storycli.meta.{Character, Characters, Premise}
 
 object SummaryCommand extends Command {
 
@@ -33,13 +33,16 @@ object SummaryCommand extends Command {
         loop(args, false, None)
     }
 
-    def render(title: String, ep: Either[String, Premise]): Either[String, List[String]] = {
-        Right(
+    def render(title: String, ep: Either[String, Premise], ecs: Either[String, List[Character]]): List[String] = {
         s"title: $title" ::
-            (ep match 
-                case Left(error) => List(s"ERROR: $error")
-                case Right(p) => List("premise: "+p.oneLine)
-            )
+        (ep match
+            case Left(error) => s"ERROR: $error"
+            case Right(p) => "premise: "+p.oneLine
+        ) ::
+        (ecs match
+            case Left(error) => List(s"ERROR: $error")
+            case Right(cs) => "characters:" :: cs.map{ c => s"  ${c.name} (${c.role})" }
+
         )
     }
 
@@ -52,7 +55,7 @@ object SummaryCommand extends Command {
                     // local dir summary
                     // sanity check we are in a local git repository
                     if (!os.exists(os.pwd / ".git" )) Left("current directory does not appear to be a local git repository")
-                    else render(os.pwd.last, Premise.read(os.pwd))
+                    else Right(render(os.pwd.last, Premise.read(os.pwd), Characters.read(os.pwd)))
                 }
                 case Some(subPath) => {
                     // remote dir summary
@@ -61,7 +64,7 @@ object SummaryCommand extends Command {
                     if (sf.isServer) {
                         val title = subPath.last
                         val dir = sf.serverStories / subPath / os.up / (title+".git")
-                        render(title, Premise.extract(dir))
+                        Right(render(title, Premise.extract(dir), Characters.extract(dir)))
                     } else {
                         val cmd = ("story-cli" :: go.args).mkString(" ")
                         val result = os.proc("ssh", s"${go.userName}@${go.serverName}", cmd).call()
