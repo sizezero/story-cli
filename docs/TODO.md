@@ -36,19 +36,27 @@
     * ~/to-delete/story-cli/<date-time>
     * this is not a dangerous command so don't differentiate between development and production
       * we don't want pieces of the backup that we have to fiddle with later, we want a pristine copy of the whole tree
-* convert current book
-    * copy template
-    * checkout on olivia
-    * manually convert files from olivia
+* ~~convert current book~~
+    * ~~clean production repo and checkouts~~
+    * ~~verify template~~
+    * ~~copy template~~
+    * ~~checkout on olivia~~
+    * ~~manually convert files from olivia~~
 * list option
     * -p,--premise one line premise indented under book title
 * show command
     * current checked out directory or named remote
+        * named remote could have problems extracting
     * content
         * title
+        * draft length or wordcount?
         * premise
         * characters names with roles
-        * draft length or wordcount?
 * analyze command
     * other names: table, incidents,
-    * options -c,--csv -s,--sc
+    * to target/
+    * see if it makes sense to add a CSV output format
+        * options -c,--csv -s,--sc
+* build
+    * preprocess file to temp dir
+    * need target. Maybe output to target/ with same name as dir
