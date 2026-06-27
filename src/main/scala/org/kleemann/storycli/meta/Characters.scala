@@ -4,10 +4,10 @@ case class Character(name: String, role: String)
 
 object Characters {
 
-    def create(lines: Vector[String]): Either[String, List[Character]] =  {
+    def create(lines: List[String]): Either[String, List[Character]] =  {
 
         val rolePrefix = "* Role:"
-        def roleLoop(lines: Vector[String], name: String): Character = {
+        def roleLoop(lines: List[String], name: String): Character = {
             if (lines.isEmpty) Character(name, "N/A")
             else {
                 val line = lines.head
@@ -18,7 +18,7 @@ object Characters {
         }
 
         val namePrefix = "## "
-        def characterLoop(lines: Vector[String], cs: List[Character]): Either[String, List[Character]] = {
+        def characterLoop(lines: List[String], cs: List[Character]): Either[String, List[Character]] = {
             if (lines.isEmpty) Right(cs.reverse)
             else {
                 val line = lines.head

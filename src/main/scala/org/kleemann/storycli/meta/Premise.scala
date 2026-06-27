@@ -12,8 +12,8 @@ object Premise {
       * @param in
       * @return
       */
-    def create(lines: Vector[String]): Either[String, Premise] =  {
-        def loop(lines: Vector[String]): Either[String, Premise] = {
+    def create(lines: List[String]): Either[String, Premise] =  {
+        def loop(lines: List[String]): Either[String, Premise] = {
             if (lines.isEmpty) Left("empty premise.md")
             else if (lines.head.startsWith("#")) loop(lines.tail)
             else if (lines.head.isBlank) loop(lines.tail)
