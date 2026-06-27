@@ -1,7 +1,9 @@
 package org.kleemann.storycli.command
 
-import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
 import os.Path
+
+import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
+import org.kleemann.storycli.meta.{Premise}
 
 object ListCommand extends Command {
 
@@ -23,8 +25,6 @@ object ListCommand extends Command {
         loop(args, false, false)
     }
 
-    def removeNewlines(s: String): String = s.replaceAll("\\r?\\n", "")
-
     /**
       * attempts to read the file "premise.md" from the root of the passed git repo.
       * The one line premise at the top of the page is returned.
@@ -33,20 +33,11 @@ object ListCommand extends Command {
       * @param repo
       * @return
       */
-    def oneLinePremise(repo: Path): String = {
-        // git archive --remote=file:///home/robert/stories/development/repos/template.git HEAD premise.md | tar xO
-        val result = os.proc("sh", "-c" , s"git archive --remote=${repo} HEAD premise.md | tar xO").call()
-        if (result.exitCode == 0) {
-            def loop(lines: Vector[String]): String = {
-                if (lines.isEmpty) "empty premise.md"
-                else if (lines.head.startsWith("#")) loop(lines.tail)
-                else if (lines.head.isBlank) loop(lines.tail)
-                else removeNewlines(lines.head).trim
-            }
-            loop(result.out.lines())
-        }
-        else removeNewlines(result.err.text()+result.out.text()).trim
-    }
+    def oneLinePremise(repo: Path): String =
+        Premise.extract(repo) match
+            case Left(error)    => error // embed errors in the output
+            case Right(premise) => premise.oneLine
+
     def run(go: GlobalOptions): Either[String, List[String]] = {
         parse(go.rest) match {
             case Left(error) => Left(error)

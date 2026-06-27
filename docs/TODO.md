@@ -44,14 +44,21 @@
     * ~~manually convert files from olivia~~
 * ~~list option~~
     * -p,--premise one line premise indented under book title
-* show command
+* summary command
+    * possible names: show, **summary**, details, overview
+    * summary of single story repo
     * current checked out directory or named remote
         * named remote could have problems extracting
     * content
         * title
-        * draft length or wordcount?
+        * draft length or wordcount? What is the name of the draft guaranteed to be?
         * premise
         * characters names with roles
+    * stick the parsing functionality into a package: stories.{**meta**, extract, summary, parse}
+        * rely on file content as Vector[String] which is returned from os.proc().call().out.lines()
+        * objects in folder are named by files in project and are constructed with either a local git repo or checked out path
+        * package.scala can have bare functions and objects
+            * I may need some package private ones in here too
 * analyze command
     * other names: table, incidents,
     * to target/

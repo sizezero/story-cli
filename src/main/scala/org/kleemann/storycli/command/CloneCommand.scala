@@ -12,7 +12,7 @@ object CloneCommand extends Command {
             val story = args.head
             if (storyRe.matches(story)) Right(os.SubPath(story))
             else Left("story argument must be letters, numbers, hyphens, and slashes")
-        } else Left("usage: story-cli checkout <dir/story>")
+        } else Left("usage: story-cli clone <dir/story>")
     }
 
     def run(go: GlobalOptions): Either[String, List[String]] = {

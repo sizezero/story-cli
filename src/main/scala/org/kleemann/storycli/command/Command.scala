@@ -70,11 +70,12 @@ object Command {
     }
 
     private val all = Map[String, Command](
-        "help"   -> HelpCommand,
-        "new"    -> NewCommand,
-        "list"   -> ListCommand,
-        "clone"  -> CloneCommand,
-        "backup" -> BackupCommand
+        "help"    -> HelpCommand,
+        "new"     -> NewCommand,
+        "list"    -> ListCommand,
+        "clone"   -> CloneCommand,
+        "backup"  -> BackupCommand,
+        "summary" -> SummaryCommand
     )
 
     /**
