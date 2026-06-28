@@ -64,6 +64,14 @@
     * to target/
     * see if it makes sense to add a CSV output format
         * options -c,--csv -s,--sc
+    * write file
+        * into target directory
+        * add target to .gitignore
+    * empty sheet
+        * see how small it can be and still load
+    * ~~parse draft~~
+        * naming? analyze takes an optional draft argument; story.md is the default; suffix .md is trimmed if specified
+    * continue to build out
 * build
     * preprocess file to temp dir
     * need target. Maybe output to target/ with same name as dir

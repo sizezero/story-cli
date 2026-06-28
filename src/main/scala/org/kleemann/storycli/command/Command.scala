@@ -75,7 +75,8 @@ object Command {
         "list"    -> ListCommand,
         "clone"   -> CloneCommand,
         "backup"  -> BackupCommand,
-        "summary" -> SummaryCommand
+        "summary" -> SummaryCommand,
+        "analyze" -> AnalyzeCommand
     )
 
     /**

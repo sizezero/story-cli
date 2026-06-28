@@ -15,7 +15,7 @@ def readFile(file: os.Path): Either[String, List[String]] =
     else                 Left(s"file does not exists: ${file.toString}")
 
 /**
-  * Easily connect either extractFile or readFile to a meta file constructor such as Premise.
+  * Easily connect either extractFile or readFile to a meta file constructor such as Premise.creat().
   * 
   * I feel like this is some known functional idiom that should have a well known name. I'm calling it pipe for now.
   *
