@@ -44,7 +44,7 @@
     * ~~manually convert files from olivia~~
 * ~~list option~~
     * -p,--premise one line premise indented under book title
-* summary command
+* ~~summary command~~
     * possible names: show, **summary**, details, overview
     * summary of single story repo
     * current checked out directory or named remote
