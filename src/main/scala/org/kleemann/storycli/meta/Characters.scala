@@ -1,5 +1,7 @@
 package org.kleemann.storycli.meta
 
+import scala.annotation.tailrec
+
 case class Character(name: String, role: String)
 
 object Characters {
@@ -7,6 +9,7 @@ object Characters {
     def create(lines: List[String]): Either[String, List[Character]] =  {
 
         val rolePrefix = "* Role:"
+        @tailrec
         def roleLoop(lines: List[String], name: String): Character = {
             if (lines.isEmpty) Character(name, "N/A")
             else {
@@ -18,6 +21,7 @@ object Characters {
         }
 
         val namePrefix = "## "
+        @tailrec
         def characterLoop(lines: List[String], cs: List[Character]): Either[String, List[Character]] = {
             if (lines.isEmpty) Right(cs.reverse)
             else {

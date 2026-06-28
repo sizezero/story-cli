@@ -1,5 +1,7 @@
 package org.kleemann.storycli.meta
 
+import scala.annotation.tailrec
+
 case class Premise(oneLine: String)
 
 object Premise {
@@ -13,6 +15,7 @@ object Premise {
       * @return
       */
     def create(lines: List[String]): Either[String, Premise] =  {
+        @tailrec
         def loop(lines: List[String]): Either[String, Premise] = {
             if (lines.isEmpty) Left("empty premise.md")
             else if (lines.head.startsWith("#")) loop(lines.tail)

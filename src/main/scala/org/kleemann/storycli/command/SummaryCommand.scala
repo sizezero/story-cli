@@ -1,5 +1,7 @@
 package org.kleemann.storycli.command
 
+import scala.annotation.tailrec
+
 import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
 import org.kleemann.storycli.meta.{Character, Characters, Premise}
 
@@ -9,6 +11,7 @@ object SummaryCommand extends Command {
     val storyRe = """^[a-z][a-z0-9-/]*$""".r
 
     def parse(args: List[String]): Either[String, (Boolean, Option[os.SubPath])] = {
+        @tailrec
         def loop(args: List[String], localRepo: Boolean, subPath: Option[os.SubPath]): Either[String, (Boolean, Option[os.SubPath])] = {
             if (args.isEmpty) {
                 // check for conflicting options before returning

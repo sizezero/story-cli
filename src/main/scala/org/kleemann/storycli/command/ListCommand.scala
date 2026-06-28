@@ -1,6 +1,7 @@
 package org.kleemann.storycli.command
 
 import os.Path
+import scala.annotation.tailrec
 
 import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
 import org.kleemann.storycli.meta.{Premise}
@@ -9,7 +10,7 @@ object ListCommand extends Command {
 
     // returned booleans are (json, premise)
     def parse(args: List[String]): Either[String, (Boolean, Boolean)] = {
-
+        @tailrec
         def loop(args: List[String], json: Boolean, premise: Boolean): Either[String, (Boolean, Boolean)] = {
             if (args.isEmpty) Right(json, premise)
             else args.head match {
