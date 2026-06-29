@@ -6,7 +6,61 @@ case class Column(label: String, value: String)
 
 case class Incident(name: String, columns: List[Column], wordCount: Int)
 
-case class Story(title: String, incidents: List[Incident])
+case class Story(title: String, incidents: List[Incident]) {
+
+    /**
+      * Returns the Story in CSV format.
+      *
+      * @return Outer list has rows. Inner list has each cell of the row.
+      */
+    def toCsv(): List[List[String]] = {
+
+        def escapeCsvCell(cell: String): String = {
+            if (cell == null) ""
+            else if (cell.contains(",") || cell.contains("\"") || cell.contains("\n"))
+                // Escape existing double quotes by doubling them, then wrap the entire cell in quotes
+                "\"" + cell.replace("\"", "\"\"") + "\""
+            else cell
+        }
+
+        // title doesn't go in the csv content
+
+        // traverse incidents to get all columns in an ordered list
+        // we pass a set of the columns through the fold so we can easily look them up
+        val (customHeadersReversed, _) = incidents.foldLeft((List[String](), Set[String]())) {
+            case ((hs: List[String], hset:Set[String]), in: Incident) => {
+                // traverse columns and add new ones to the headers
+                val (hs2, hset2) = in.columns.foldLeft((hs, hset)) { case ((hs3, hset3), col) => {
+                    val label = col.label
+                    if (hset3.contains(label)) (hs3, hset3) else (label :: hs3, hset3 + label)
+                }}
+                (hs2, hset2)
+            }
+        }
+        val customHeaders = customHeadersReversed.reverse
+
+        val unescaped =
+            // make first header row
+            ("Chapter" :: "Incident" :: "Words" :: "Percentage" :: "Cumulative" :: customHeaders)
+            ::
+            // second row is the totals
+            ("" :: "" :: "" :: "total" :: "100%" :: customHeaders.map{ s => ""})
+            ::
+            // walk down incidents to make all remaining rows
+            incidents.map { in =>
+                "" :: in.name :: in.wordCount.toString :: "" :: "" ::
+                    customHeaders.map{ label => {
+                        in.columns.find{ _.label == label } match
+                            case None => ""
+                            case Some(col) => col.value
+                    }}
+            }
+
+        // you could probably get by with just escaping the headers and values above
+        // that would be more efficient but this is bulletproof
+        unescaped.map{ _.map{ escapeCsvCell(_) } }
+    }
+}
 
 object Story {
 
@@ -70,7 +124,7 @@ object Story {
                                 // ignore template incidents as well as the following word counts
                                 loop(nextLines, prevLineNo, title, is)
                             else
-                                // this is the body of the incident
+                                // this is the body of text following the the incident block
                                 wordsLoop(nextLines, prevLineNo, 0) match
                                     case Left(error) => Left(error)
                                     case Right(wc, nextLines, prevLineNo) =>

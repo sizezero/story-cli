@@ -160,4 +160,84 @@ class TestStory extends munit.FunSuite {
             case Left(error) => assertEquals("error(8): second start of incident. incident: foo", error)
             case Right(story) => assert(false, story)
     }
+
+    test("big csv") {
+        val in: List[String] =
+        """
+        |#   my title
+        |
+        |<!-- begin incident: breakfast
+        |Column: Food: cereal bacon eggs
+        |Column: Beverage: coffee orange juice
+        |end incident -->
+        |
+        |<!-- begin incident: second breakfast
+        |Column: Beverage: mimosa
+        |Column: Conversation: gossip
+        |Column: Food: croissant
+        |end incident -->
+        |
+        |<!-- begin incident: lunch
+        |Column: Food: hamburger
+        |end incident -->
+        |
+        |<!-- begin incident: dinner
+        |Column: Beverage: water
+        |Column: Food: salad steak potato
+        |end incident -->
+        |
+        |<!-- begin incident: happy hour
+        |Column: Beverage: booze
+        |Column: Conversation: jokes
+        |end incident -->
+        |
+        |""".stripMargin.linesIterator.toList
+
+        Story.create(in) match
+            case Left(error) => assert(false, error)
+            case Right(story) => {
+                assertEquals(
+                    story.toCsv(),
+                    List(
+                        List("Chapter","Incident","Words","Percentage","Cumulative","Food","Beverage","Conversation"),
+                        List("","","","total","100%","","",""),
+                        List("","breakfast","0","","","cereal bacon eggs","coffee orange juice",""),
+                        List("","second breakfast","0","","","croissant","mimosa","gossip"),
+                        List("","lunch","0","","","hamburger","",""),
+                        List("","dinner","0","","","salad steak potato","water",""),
+                        List("","happy hour","0","","","","booze","jokes")
+                    )
+                )
+            }
+    }
+
+    test("escaped csv") {
+
+        // this is currently untestable as I don't allow quotes in
+        // titles, incident names, column labels, or column values
+
+        val in: List[String] =
+        """
+        |#   my title
+        |
+        |<!-- begin incident: one
+        |Column: quotes: something in quotes here
+        |Column: no quotes: an ordinary line
+        |end incident -->
+        |
+        |""".stripMargin.linesIterator.toList
+
+        Story.create(in) match
+            case Left(error) => assert(false, error)
+            case Right(story) => {
+                assertEquals(
+                    story.toCsv(),
+                    List(
+                        List("Chapter","Incident","Words","Percentage","Cumulative","quotes","no quotes"),
+                        List("","","","total","100%","",""),
+                        List("","one","0","","","""something in quotes here""","an ordinary line"),
+                    )
+                )
+            }
+    }
 }
