@@ -53,7 +53,13 @@ object AnalyzeCommand extends Command {
                         // target diretory must exist
                         val target = os.pwd / "target"
                         os.makeDir.all(target)
-                        Left("TODO")
+                        output match
+                            case Output.Csv => {
+                                val out = target / (filename.stripSuffix(".md") + ".csv")
+                                os.write.over(out, story.toCsv())
+                                Right(List(s"written: ${out.toString}"))
+                            }
+                            case Output.Sc => Left("TODO")
                     }
     }
 

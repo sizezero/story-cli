@@ -199,13 +199,13 @@ class TestStory extends munit.FunSuite {
                 assertEquals(
                     story.toCsv(),
                     List(
-                        List("Chapter","Incident","Words","Percentage","Cumulative","Food","Beverage","Conversation"),
-                        List("","","","total","100%","","",""),
-                        List("","breakfast","0","","","cereal bacon eggs","coffee orange juice",""),
-                        List("","second breakfast","0","","","croissant","mimosa","gossip"),
-                        List("","lunch","0","","","hamburger","",""),
-                        List("","dinner","0","","","salad steak potato","water",""),
-                        List("","happy hour","0","","","","booze","jokes")
+                        "Chapter,Incident,Words,Percentage,Cumulative,Food,Beverage,Conversation\n",
+                        ",,,total,100%,,,\n",
+                        ",breakfast,0,,,cereal bacon eggs,coffee orange juice,\n",
+                        ",second breakfast,0,,,croissant,mimosa,gossip\n",
+                        ",lunch,0,,,hamburger,,\n",
+                        ",dinner,0,,,salad steak potato,water,\n",
+                        ",happy hour,0,,,,booze,jokes\n"
                     )
                 )
             }
@@ -213,16 +213,14 @@ class TestStory extends munit.FunSuite {
 
     test("escaped csv") {
 
-        // this is currently untestable as I don't allow quotes in
-        // titles, incident names, column labels, or column values
-
         val in: List[String] =
         """
-        |#   my title
+        |# my title
         |
         |<!-- begin incident: one
-        |Column: quotes: something in quotes here
+        |Column: quotes: something "in quotes" here
         |Column: no quotes: an ordinary line
+        |Column: punctuation: ~!@#$%^&*()_+-=`,;:'",.<>/?
         |end incident -->
         |
         |""".stripMargin.linesIterator.toList
@@ -233,9 +231,9 @@ class TestStory extends munit.FunSuite {
                 assertEquals(
                     story.toCsv(),
                     List(
-                        List("Chapter","Incident","Words","Percentage","Cumulative","quotes","no quotes"),
-                        List("","","","total","100%","",""),
-                        List("","one","0","","","""something in quotes here""","an ordinary line"),
+                        "Chapter,Incident,Words,Percentage,Cumulative,quotes,no quotes,punctuation\n",
+                        ",,,total,100%,,,\n",
+                        """,one,0,,,"something ""in quotes"" here",an ordinary line,"~!@#$%^&*()_+-=`,;:'"",.<>/?""""+"\n",
                     )
                 )
             }

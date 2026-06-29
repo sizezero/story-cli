@@ -13,7 +13,7 @@ case class Story(title: String, incidents: List[Incident]) {
       *
       * @return Outer list has rows. Inner list has each cell of the row.
       */
-    def toCsv(): List[List[String]] = {
+    def toCsv(): List[String] = {
 
         def escapeCsvCell(cell: String): String = {
             if (cell == null) ""
@@ -58,7 +58,7 @@ case class Story(title: String, incidents: List[Incident]) {
 
         // you could probably get by with just escaping the headers and values above
         // that would be more efficient but this is bulletproof
-        unescaped.map{ _.map{ escapeCsvCell(_) } }
+        unescaped.map{ _.map{ escapeCsvCell(_) }.mkString(",")+"\n" }
     }
 }
 
@@ -66,9 +66,15 @@ object Story {
 
     def create(lines: List[String]): Either[String, Story] =  {
 
+        // Titles, incident names, and column labels are limited to
+        // letters (upper and lowercase), numbers, underscore, hyphen,
+        // question mark, and spaces. Column values can contain any non-space
+        // character as well as spaces so pretty much everything except for tabs
+        // and newlines. The latter may be too much for some downstream use.
+        // We'll see.
         val titleRe         = """^#\s+([\w:-? ]+)\s*$""".r
         val incidentStartRe = """^<!-- begin incident:\s+([\w:-? ]+)\s*$""".r
-        val columnRe        = """^Column:\s*([\w-? ]+)\s*:\s*([\w-? ]+)\s*$""".r
+        val columnRe        = """^Column:\s*([\w-? ]+)\s*:\s*([\S ]+)\s*$""".r
         val incidentEndRe   = """^end incident -->$""".r
 
         @tailrec
