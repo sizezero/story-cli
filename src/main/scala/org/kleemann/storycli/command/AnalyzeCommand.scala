@@ -59,7 +59,11 @@ object AnalyzeCommand extends Command {
                                 os.write.over(out, story.toCsv())
                                 Right(List(s"written: ${out.toString}"))
                             }
-                            case Output.Sc => Left("TODO")
+                            case Output.Sc => {
+                                val out = target / (filename.stripSuffix(".md") + ".sc")
+                                os.write.over(out, story.toSc())
+                                Right(List(s"written: ${out.toString}"))
+                            }
                     }
     }
 
