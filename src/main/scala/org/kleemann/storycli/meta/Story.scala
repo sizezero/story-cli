@@ -111,6 +111,8 @@ case class Story(title: String, incidents: List[Incident]) {
             add("format C 8 0 0"). // format wordcount  column: narrower, no decimal places
             add("format D 6 0 0"). // format percentage column: narrower, no decimal places
             add("format E 6 0 0"). // format cumulative column: narrower, no decimal places
+            add("freeze B"). // freeze Incident column
+            add("freeze 0"). // freeze header row
             // incident columns are a little wider
             code{ mb =>
                 (5 to (5+customHeaders.length)).foldLeft(mb){ case (mb, i) => mb.add(s"format ${mb.alphabet(i)} 16 0 0")}
