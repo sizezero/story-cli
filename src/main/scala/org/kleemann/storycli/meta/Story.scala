@@ -98,6 +98,9 @@ case class Story(title: String, incidents: List[Incident]) {
             def toList = acc.reverse
         }
 
+        val minIncidentNameWidth = 6
+        val incidentValueWidth = 16
+
         MatrixBuilder(0, 0, Nil).
             // magic starting header values
             add("""newsheet "Sheet1"""").
@@ -108,15 +111,34 @@ case class Story(title: String, incidents: List[Incident]) {
             add("nb_frozen_cols 0").
             add("nb_frozen_screenrows 0").
             add("format A 6 2 0"). // format Chp as narrow as possible
+            code{ mb => {
+                val maxWidth = incidents.foldLeft(minIncidentNameWidth) { case (maxWidth, incident) =>
+                    scala.math.max(maxWidth, incident.name.length)
+                }
+                mb.add(s"format B ${maxWidth} 0 0")
+            }}.
             add("format C 8 0 0"). // format wordcount  column: narrower, no decimal places
             add("format D 6 0 0"). // format percentage column: narrower, no decimal places
             add("format E 6 0 0"). // format cumulative column: narrower, no decimal places
-            add("freeze B"). // freeze Incident column
-            add("freeze 0"). // freeze header row
             // incident columns are a little wider
             code{ mb =>
-                (5 to (5+customHeaders.length)).foldLeft(mb){ case (mb, i) => mb.add(s"format ${mb.alphabet(i)} 16 0 0")}
+                (5 to (5+customHeaders.length)).foldLeft(mb){
+                    case (mb, i) => mb.add(s"format ${mb.alphabet(i)} ${incidentValueWidth} 0 0")
+                }
             }.
+            code{ mb =>
+                incidents.foldLeft((mb,2)){ case ((mb, row), incident) =>
+                    // the maximum character length of all the columns used by this incident
+                    val maxLength = incident.columns.foldLeft(0){ case (max, column) => scala.math.max(max, column.value.length) }
+                    val height = maxLength / incidentValueWidth + 1
+                    if (height > 1)
+                        (mb.add(s"format ${row} ${height}"), row+1)
+                    else
+                        (mb                                , row+1)
+                }._1
+            }.
+            add("freeze B"). // freeze Incident column
+            add("freeze 0"). // freeze header row
             // first header row
             lab("Chp").lab("Incident").lab("Words").lab("Pct").lab("Cum").
             // list of custom headers into labels

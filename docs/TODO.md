@@ -73,7 +73,7 @@
         * naming? analyze takes an optional draft argument; story.md is the default; suffix .md is trimmed if specified
     * ~~chapter? do I need it? Temporarily make it small~~
     * ~~freeze first row and first two columns~~
-    * make incident columns a little wider and format lines to be able to show text
+    * ~~make incident columns a little wider and format lines to be able to show text; format <row> <lineheight>~~
 * build
     * preprocess file to temp dir
     * need target. Maybe output to target/ with same name as dir
