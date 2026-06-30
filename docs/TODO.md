@@ -60,7 +60,7 @@
         * package.scala can have bare functions and objects
             * I may need some package private ones in here too
 * analyze command
-    * other names: table, incidents,
+    * ~~other names: table, incidents,~~
     * ~~to target/~~
     * ~~see if it makes sense to add a CSV output format~~
         * options -c,--csv -s,--sc
@@ -71,7 +71,9 @@
         * see how small it can be and still load
     * ~~parse draft~~
         * naming? analyze takes an optional draft argument; story.md is the default; suffix .md is trimmed if specified
-    * continue to build out
+    * ~~chapter? do I need it? Temporarily make it small~~
+    * freeze first row and first two columns
+    * make incident columns a little wider and format lines to be able to show text
 * build
     * preprocess file to temp dir
     * need target. Maybe output to target/ with same name as dir

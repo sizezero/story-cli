@@ -70,6 +70,7 @@ case class Story(title: String, incidents: List[Incident]) {
         val customHeaders = getCustomHeaders()
 
         // matrix builder class lets us easily add labels and formulas
+        // while keeping track of columns and rows
         case class MatrixBuilder(row: Int, col: Int, acc: List[String]) {
             def add(s: String)    = MatrixBuilder(row,   col,   s :: acc)
             def addInc(s: String) = MatrixBuilder(row,   col+1, s :: acc)
@@ -106,6 +107,7 @@ case class Story(title: String, incidents: List[Incident]) {
             add("nb_frozen_rows 0").
             add("nb_frozen_cols 0").
             add("nb_frozen_screenrows 0").
+            add("format A 6 2 0"). // format Chp as narrow as possible
             add("format C 8 0 0"). // format wordcount  column: narrower, no decimal places
             add("format D 6 0 0"). // format percentage column: narrower, no decimal places
             add("format E 6 0 0"). // format cumulative column: narrower, no decimal places
@@ -114,7 +116,7 @@ case class Story(title: String, incidents: List[Incident]) {
                 (5 to (5+customHeaders.length)).foldLeft(mb){ case (mb, i) => mb.add(s"format ${mb.alphabet(i)} 16 0 0")}
             }.
             // first header row
-            lab("Chapter").lab("Incident").lab("Words").lab("Pct").lab("Cum").
+            lab("Chp").lab("Incident").lab("Words").lab("Pct").lab("Cum").
             // list of custom headers into labels
             code{ mb => customHeaders.foldLeft(mb){ case (mb, s) => mb.lab(s)}}.
             cr.
@@ -125,7 +127,7 @@ case class Story(title: String, incidents: List[Incident]) {
             frm(s"@sum({\"Sheet1\"}!D2:{\"Sheet1\"}!D${2+incidents.length})", "#%").
             blank.
             // for each custom header, add an empty label
-            code{ mb => customHeaders.foldLeft(mb){ case (mb, s) => mb.blank}}.
+            code{ mb => customHeaders.foldLeft(mb){ case (mb, s) => mb.blank }}.
             cr.
             // walk down incidents to make all remaining rows
             code{ mb => incidents.foldLeft(mb){ case (mb2, in) =>
