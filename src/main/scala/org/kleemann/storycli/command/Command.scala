@@ -120,8 +120,6 @@ object Command {
         BackupCommand,
     )
 
-    private val allMap = all.map{ c => c.commandName -> c }.toMap
-
     /**
      * Parses the command line and runs the command. Commands have side-effects so this method does as well.
      *
@@ -134,7 +132,7 @@ object Command {
             case Right(go) => {
                 if (go.command == "help")
                     HelpCommand.run(go)
-                else allMap.get(go.command) match {
+                else all.find{ _.commandName == go.command } match {
                     case None          => Left(s"command not found: ${go.command}")
                     case Some(command) => {
                         if (go.rest.contains("-h") || go.rest.contains("--help"))
