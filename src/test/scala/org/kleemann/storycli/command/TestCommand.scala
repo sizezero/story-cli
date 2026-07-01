@@ -3,14 +3,21 @@ package org.kleemann.storycli.command
 import org.kleemann.storycli.GlobalOptions
 
 class TestCommand extends munit.FunSuite {
-    test("scratch") {
-        assertEquals(1, 1)
+
+    test("command names match re") {
+        for (cmd <- Command.all) {
+            assert( Command.commandNameRe.matches(cmd.commandName), cmd.commandName )
+        }
+    }
+
+    test("command names are unique") {
+        assert(Command.all.size == Command.all.toSet.size)
     }
 
     test("empty") {
         assertEquals( 
             Command.parse(Nil), 
-            Left("no command specified") )
+            Left("usage: story-cli --help") )
     }
 
     test("default option is development") {
@@ -48,7 +55,7 @@ class TestCommand extends munit.FunSuite {
     }
 
     test("--production can't be specified from a non-production location") {
-        Command.parse(List("--production", "help")) match {
+        Command.parse(List("--production", "summary")) match {
             case Left(_) => assert(true) // don't care what the error message is
             case _       => assert(false)
         }

@@ -4,6 +4,19 @@ import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
 
 object NewCommand extends Command {
 
+    override val commandName = "new"
+
+    override val commandLineHelp = "story-cli new <new story>"
+
+    override val oneLineHelp = "creates a new git story repo on the server"
+
+    override val multiLineHelp = List(
+        "<new story> may be lowercase letters, numbers, slashes, and hypens",
+        "Directories that are prefixed will be created on the server if necessary.",
+        "The new story repository is copied from the server template.git repository.",
+        "If a story of the same name already exists, a new story will not be created.",
+    )
+
     /**
       * This performs file system commands and so is not functional.
       *
@@ -11,7 +24,7 @@ object NewCommand extends Command {
       * @param rest
       * @return
       */
-    def run(go: GlobalOptions): Either[String, List[String]] = {
+    override def run(go: GlobalOptions): Either[String, List[String]] = {
 
         val storyDirRe = """^[a-z][a-z0-9-/]*$""".r
         if (go.rest.length != 1 || !storyDirRe.matches(go.rest.head))

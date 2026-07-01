@@ -7,7 +7,18 @@ import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
 
 object BackupCommand extends Command {
 
-    def run(go: GlobalOptions): Either[String, List[String]] = {
+    override val commandName = "backup"
+
+    override val commandLineHelp = "story-cli backup"
+
+    override val oneLineHelp = "copies server files to ~/to-delete/"
+
+    override val multiLineHelp = List(
+        "This command only runs on the server.",
+        "The entire ~/stories/ directory is backed up to ~/to-delete/stories/<date/time>/",
+    )
+
+    override def run(go: GlobalOptions): Either[String, List[String]] = {
         val sf = StoriesFolder(go)
         if (go.rest.length != 0) Left("backup command takes no arguments")
         else if (!sf.isServer) Left("the backup command can only be run on the server")

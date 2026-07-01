@@ -4,6 +4,18 @@ import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
 
 object CloneCommand extends Command {
 
+    override val commandName = "clone"
+
+    override val commandLineHelp = "story-cli clone <story>"
+
+    override val oneLineHelp = "checks out a story from the server to ~/stories/checkouts/<story>"
+
+    override val multiLineHelp = List(
+        "The <story> argument must be letters, numbers, hyphens and slashes.",
+        "The checkout dir may be nested in directories that mimic the server structure.",
+        "If the story is already checked out on the local machine, it will not be checked out again.",
+    )
+
     val storyRe = """^[a-z][a-z0-9-/]*$""".r
 
     // returns single argument
@@ -15,7 +27,7 @@ object CloneCommand extends Command {
         } else Left("usage: story-cli clone <dir/story>")
     }
 
-    def run(go: GlobalOptions): Either[String, List[String]] = {
+    override def run(go: GlobalOptions): Either[String, List[String]] = {
         parse(go.rest) match {
             case Left(error) => Left(error)
             case Right(story) => {

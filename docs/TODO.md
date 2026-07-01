@@ -74,6 +74,25 @@
     * ~~chapter? do I need it? Temporarily make it small~~
     * ~~freeze first row and first two columns~~
     * ~~make incident columns a little wider and format lines to be able to show text; format <row> <lineheight>~~
-* build
+* ~~build~~
     * preprocess file to temp dir
     * need target. Maybe output to target/ with same name as dir
+    * I ended up making a Makefile
+* ~~help~~
+    * ~~no arguments~~
+        * mention --help
+    * ~~single help argument~~
+        * show single one line global options
+        * show list of all commands with a brief summary of what they do
+            * order is chosen by command with simple ones first
+            * uses command name and command one line help
+    * ~~bad command~~
+        * one line error
+    * command help
+        * help specified after command
+        * most detailed help for the command
+        * command name command multi-line description
+    * ~~Command extensions~~
+        * command name
+        * one line help
+        * multi-line description

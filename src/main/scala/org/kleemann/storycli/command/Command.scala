@@ -5,44 +5,82 @@ import os.home
 import org.kleemann.storycli.GlobalOptions
 
 trait Command {
+
+    /**
+      * The name of the command as specified on the command line.
+      * It just contains letters, number, and hypenns.
+      */
+    val commandName: String
+
+    /**
+      * A one line syntax of the command.
+      * TODO: test this and the above value
+      */
+    val commandLineHelp: String
+
+    /**
+     * A one line phrase describing the command's function. It is not a sentence so does not start
+     * with caps and does not end in a period.
+     */
+    val oneLineHelp: String
+
+    /**
+      * More details on help.
+      */
+    val multiLineHelp: List[String]
+
+    def commandSpecificHelp(): List[String] = {
+        "" ::
+        "command " + commandName + " : " + oneLineHelp ::
+        "" ::
+        commandLineHelp ::
+        "" ::
+        ( multiLineHelp ++ List("") ) // unfortunately need an extra newline
+    }
+
     def run(go: GlobalOptions): Either[String, List[String]]
 }
 
 object Command {
 
+    protected[command] val commandNameRe = """([a-z]+)""".r
+
+    private def longHelp(): List[String] = List(
+
+    )
+
     protected[command] def parse(args: List[String]): Either[String, GlobalOptions] = {
 
-        val commandRe = """([a-z]+)""".r
-
         // parse options until we get something that doesn't start with a hyphen
-        def loop(args: List[String], help: Boolean, production: Boolean, development: Boolean, command: Option[String]): 
-            Either[String, (Boolean, Boolean, Boolean, Option[String], List[String])] = {
+        def loop(args: List[String], production: Boolean, development: Boolean, command: Option[String]):
+            Either[String, (Boolean, Boolean, Option[String], List[String])] = {
 
-            if (args.isEmpty) Right(help, production, development, command, args)
+            if (args.isEmpty) Right(production, development, command, args)
             else {
                 val arg = args.head
                 arg match {
                     // if help is found just break out of this with a help command
-                    case "-h" | "--help" => Right(true, production, development, Some("help"), Nil)
+                    case "-h" | "--help" => Right(production, development, Some("help"), Nil)
                     case "--production"  =>
                         if (production) Left("--production specified twice")
                         else if (development) Left("--development and production cannot both be specified")
-                        else loop(args.tail, help, true, development, command)
+                        else loop(args.tail, true, development, command)
                     case "--development"  =>
                         if (development) Left("--development specified twice")
                         else if (production) Left("--development and production cannot both be specified")
-                        else loop(args.tail, help, production, true, command)
+                        else loop(args.tail, production, true, command)
                     // stop processing args when command is reached
-                    case commandRe(cmd)  => Right((help, production, development, Some(cmd), args.tail))
+                    case commandNameRe(cmd)  => Right((production, development, Some(cmd), args.tail))
                     case arg => Left(s"unrecognized argument: $arg")
                 }
             }
         }
-        loop(args, false, false, false, None) match {
+        loop(args, false, false, None) match {
             case Left(error) => Left(error)
-            case Right(help, production, development, command, rest) => {
+            case Right(production, development, command, rest) => {
                 command match {
-                    case None => Left("no command specified")
+                    case None => Left(HelpCommand.noCommand())
+                    case Some("help") => Right(GlobalOptions(args, false, "help", rest))
                     case Some(command) => {
                         // see if we are under the bin directory
                         // vs code gives
@@ -69,15 +107,20 @@ object Command {
         }
     }
 
-    private val all = Map[String, Command](
-        "help"    -> HelpCommand,
-        "new"     -> NewCommand,
-        "list"    -> ListCommand,
-        "clone"   -> CloneCommand,
-        "backup"  -> BackupCommand,
-        "summary" -> SummaryCommand,
-        "analyze" -> AnalyzeCommand
+    /**
+     * All commands. Order informs how commands are displayed in help.
+     * Simple, common commands should come first
+     */
+    val all = List[Command](
+        ListCommand,
+        NewCommand,
+        CloneCommand,
+        SummaryCommand,
+        AnalyzeCommand,
+        BackupCommand,
     )
+
+    private val allMap = all.map{ c => c.commandName -> c }.toMap
 
     /**
      * Parses the command line and runs the command. Commands have side-effects so this method does as well.
@@ -89,9 +132,16 @@ object Command {
         parse(args) match {
             case Left(error) => Left(error)
             case Right(go) => {
-                all.get(go.command) match {
+                if (go.command == "help")
+                    HelpCommand.run(go)
+                else allMap.get(go.command) match {
                     case None          => Left(s"command not found: ${go.command}")
-                    case Some(command) => command.run(go)
+                    case Some(command) => {
+                        if (go.rest.contains("-h") || go.rest.contains("--help"))
+                            Right(command.commandSpecificHelp())
+                        else
+                            command.run(go)
+                    }
                 }
             }
         }

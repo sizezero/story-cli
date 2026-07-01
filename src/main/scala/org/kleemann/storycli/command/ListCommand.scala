@@ -8,22 +8,31 @@ import org.kleemann.storycli.meta.{Premise}
 
 object ListCommand extends Command {
 
+    override val commandName = "list"
+
+    override val commandLineHelp = "story-cli list [ -p | --premise ]"
+
+    override val oneLineHelp = "list all stories on the server"
+
+    override val multiLineHelp = List(
+        "The story name is shown with the directory prefix.",
+        "If --premise is specified, then the one line premise from premise.md is also shown.",
+        "All displayed information is from the server story repos.",
+    )
+
     // returned booleans are (json, premise)
-    def parse(args: List[String]): Either[String, (Boolean, Boolean)] = {
+    def parse(args: List[String]): Either[String, Boolean] = {
         @tailrec
-        def loop(args: List[String], json: Boolean, premise: Boolean): Either[String, (Boolean, Boolean)] = {
-            if (args.isEmpty) Right(json, premise)
+        def loop(args: List[String], premise: Boolean): Either[String, Boolean] = {
+            if (args.isEmpty) Right(premise)
             else args.head match {
-                case "-j" | "--json" =>
-                    if (json) Left("--json specified more than once")
-                    else loop(args.tail, true, premise)
                 case "-p" | "--premise" =>
                     if (premise) Left("--premise specified more than once")
-                    else loop(args.tail, json, true)
+                    else loop(args.tail, true)
                 case _ => Left(s"uknown argument: ${args.head}")
             }
         }
-        loop(args, false, false)
+        loop(args, false)
     }
 
     /**
@@ -39,10 +48,10 @@ object ListCommand extends Command {
             case Left(error)    => error // embed errors in the output
             case Right(premise) => premise.oneLine
 
-    def run(go: GlobalOptions): Either[String, List[String]] = {
+    override def run(go: GlobalOptions): Either[String, List[String]] = {
         parse(go.rest) match {
             case Left(error) => Left(error)
-            case Right(json, premise) => {
+            case Right(premise) => {
                 val sf = StoriesFolder(go)
                 if (sf.isServer) {
                     // walk through all dirs until a directory that ends in .git

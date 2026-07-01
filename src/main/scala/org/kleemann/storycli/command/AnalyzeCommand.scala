@@ -7,6 +7,22 @@ import org.kleemann.storycli.meta.Story
 
 object AnalyzeCommand extends Command {
 
+    override val commandName = "analyze"
+
+    override val commandLineHelp = "story-cli <global-options> analyze [ ( --sc | --csv ) ] [ <source-file> ]"
+
+    override val oneLineHelp = "produce target/story.sc for spreadsheet analysis"
+
+    override val multiLineHelp = List(
+        "The source consists primarily of incident names, incident columns,",
+        "and word count taken from story.md.",
+        "The default source file is story.md.",
+        "A different source story file may be specified as an optional argument.",
+        "The default output format is .sc which is the sc-im spreadsheet format.",
+        "CSV output can be specified with the --csv option.",
+        "The single output file is target/<storyname>.(sc|csv)",
+    )
+
     enum Output:
         case Sc, Csv
 
@@ -40,9 +56,7 @@ object AnalyzeCommand extends Command {
         loop(args, None, None)
     }
 
-
-
-    def run(go: GlobalOptions): Either[String, List[String]] = {
+    override def run(go: GlobalOptions): Either[String, List[String]] = {
         parse(go.rest) match
             case Left(error) => Left(error)
             case Right(filename, output) => Story.read(os.pwd, filename) match
