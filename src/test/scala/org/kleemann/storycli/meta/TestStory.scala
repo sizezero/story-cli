@@ -27,6 +27,18 @@ class TestStory extends munit.FunSuite {
             Right(Story("my title", Nil)))
     }
 
+    test("title with comma and upper case") {
+        val in: List[String] =
+        """
+        |# Love, Prey, Eat
+        |""".stripMargin.linesIterator.toList
+        // trailing space after title
+
+        assertEquals(
+            Story.create(in),
+            Right(Story("Love, Prey, Eat", Nil)))
+    }
+
     test("title specified twice") {
         val in: List[String] = 
         """line 1
