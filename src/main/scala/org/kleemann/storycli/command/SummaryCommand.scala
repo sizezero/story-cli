@@ -16,7 +16,7 @@ object SummaryCommand extends Command {
     override val multiLineHelp = List(
         "If a story name is provided, the remote server provides the information.",
         "If a story name is not provided, the local git repo provides the information.",
-        "summary information includes: premise, character names, and character roles.",
+        "Summary information includes: premise, character names, and character roles.",
     )
 
     // TODO: snagged this from CloneCommand. Find a global spot for it
