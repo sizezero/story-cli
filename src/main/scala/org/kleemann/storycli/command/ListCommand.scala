@@ -62,11 +62,16 @@ object ListCommand extends Command {
                     )
                     val ret = customizedWalk.toList.sorted
                         .flatMap{ path => {
-                            val displayPath = path.subRelativeTo(sf.serverStories).toString.stripSuffix(".git")
-                            if (premise && path.toString.endsWith(".git"))
-                                List(displayPath, "    "+oneLinePremise(path))
-                            else
-                                List(displayPath)
+                            val dir = path.subRelativeTo(sf.serverStories)
+                            if (dir.ext == "git") {
+                                val displayPath = dir.toString.stripSuffix(".git")
+                                if (premise && path.toString.endsWith(".git"))
+                                    List(displayPath, "    "+oneLinePremise(path))
+                                else
+                                    List(displayPath)
+                            } else {
+                                List(dir.toString + "/")
+                            }
                         }}
                     Right(ret)
                 } else {
