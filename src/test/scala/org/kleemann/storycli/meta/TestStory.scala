@@ -12,13 +12,13 @@ class TestStory extends munit.FunSuite {
 
         assertEquals(
             Story.create(in),
-            Left("title (# my title) is not defined in the document"))
+            Left("title required on line 2"))
     }
 
     test("title only") {
         val in: List[String] = 
-        """
-        |#   my title 
+        """---
+        |title:    my title 
         |""".stripMargin.linesIterator.toList
         // trailing space after title
 
@@ -29,8 +29,8 @@ class TestStory extends munit.FunSuite {
 
     test("title with comma and upper case") {
         val in: List[String] =
-        """
-        |# Love, Prey, Eat
+        """---
+        |title: Love, Prey, Eat
         |""".stripMargin.linesIterator.toList
         // trailing space after title
 
@@ -39,23 +39,11 @@ class TestStory extends munit.FunSuite {
             Right(Story("Love, Prey, Eat", Nil)))
     }
 
-    test("title specified twice") {
-        val in: List[String] = 
-        """line 1
-        |# first title
-        |
-        |# second title
-        |""".stripMargin.linesIterator.toList
-
-        assertEquals(
-            Story.create(in),
-            Left("error(4): title specified twice: 1:first title 2:second title"))
-    }
 
     test("single template incident") {
         val in: List[String] = 
-        """
-        |#   my title 
+        """---
+        |title:   my title 
         |
         |<!-- begin incident: template
         |
@@ -78,8 +66,8 @@ class TestStory extends munit.FunSuite {
 
     test("good long story") {
         val in: List[String] = 
-        """
-        |#   my title 
+        """---
+        |title:   my title 
         |
         |<!-- begin incident: template
         |
@@ -139,8 +127,8 @@ class TestStory extends munit.FunSuite {
 
     test("start incident with no end (file ends)") {
         val in: List[String] = 
-        """line 1
-        |#   my title 
+        """---line 1
+        |title:   my title 
         |
         |<!-- begin incident: template
         |
@@ -156,8 +144,8 @@ class TestStory extends munit.FunSuite {
 
     test("start incident with no end (new incident starts)") {
         val in: List[String] = 
-        """line 1
-        |#   my title 
+        """---line 1
+        |title:   my title 
         |
         |<!-- begin incident: foo
         |
@@ -175,8 +163,8 @@ class TestStory extends munit.FunSuite {
 
     test("big csv") {
         val in: List[String] =
-        """
-        |#   my title
+        """---
+        |title:   my title
         |
         |<!-- begin incident: breakfast
         |Column: Food: cereal bacon eggs
@@ -226,8 +214,8 @@ class TestStory extends munit.FunSuite {
     test("escaped csv") {
 
         val in: List[String] =
-        """
-        |# my title
+        """---
+        |title: my title
         |
         |<!-- begin incident: one
         |Column: quotes: something "in quotes" here

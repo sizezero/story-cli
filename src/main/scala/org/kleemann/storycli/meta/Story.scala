@@ -186,7 +186,7 @@ object Story {
         // character as well as spaces so pretty much everything except for tabs
         // and newlines. The latter may be too much for some downstream use.
         // We'll see.
-        val titleRe         = """^#\s+([\w:-?, ]+)\s*$""".r
+        val titleRe         = """^title:\s+([\w:-?, ]+)\s*$""".r
         val incidentStartRe = """^<!-- begin incident:\s+([\w:-? ]+)\s*$""".r
         val columnRe        = """^Column:\s*([\w-? ]+)\s*:\s*([\S ]+)\s*$""".r
         val incidentEndRe   = """^end incident -->$""".r
@@ -228,29 +228,32 @@ object Story {
             // look for title and incident
             if (lines.isEmpty) {
                 title match
-                    case None => Left("title (# my title) is not defined in the document")
+                    case None => Left("title is not defined in the document")
                     case Some(title) => Right(Story(title, is.reverse))
             } else {
                 val line = lines.head
                 val lineNo = prevLineNo + 1
-                line match
-                    case titleRe(latest) => title match
-                        case Some(first) => Left(s"error(${lineNo}): title specified twice: 1:${first} 2:${latest}")
-                        case None => loop(lines.tail, lineNo, Some(latest.trim), is)
-                    case incidentStartRe(in) => incidentLoop(lines.tail, lineNo, in.trim, Nil) match 
-                        case Left(error) => Left(error)
-                        case Right(incident, nextLines, prevLineNo) => {
-                            if (incident.name == "template")
-                                // ignore template incidents as well as the following word counts
-                                loop(nextLines, prevLineNo, title, is)
-                            else
-                                // this is the body of text following the the incident block
-                                wordsLoop(nextLines, prevLineNo, 0) match
-                                    case Left(error) => Left(error)
-                                    case Right(wc, nextLines, prevLineNo) =>
-                                        loop(nextLines, prevLineNo, title, incident.copy(wordCount = wc) :: is)
-                        }
-                    case _ => loop(lines.tail, lineNo, title, is)
+                if (lineNo==2) {
+                    line match
+                        case titleRe(t) => loop(lines.tail, lineNo, Some(t.trim), is)
+                        case _ => Left("title required on line 2")
+                } else {
+                    line match
+                        case incidentStartRe(in) => incidentLoop(lines.tail, lineNo, in.trim, Nil) match 
+                            case Left(error) => Left(error)
+                            case Right(incident, nextLines, prevLineNo) => {
+                                if (incident.name == "template")
+                                    // ignore template incidents as well as the following word counts
+                                    loop(nextLines, prevLineNo, title, is)
+                                else
+                                    // this is the body of text following the the incident block
+                                    wordsLoop(nextLines, prevLineNo, 0) match
+                                        case Left(error) => Left(error)
+                                        case Right(wc, nextLines, prevLineNo) =>
+                                            loop(nextLines, prevLineNo, title, incident.copy(wordCount = wc) :: is)
+                            }
+                        case _ => loop(lines.tail, lineNo, title, is)
+                }
             }
         }
         loop(lines, 0, None, Nil)
