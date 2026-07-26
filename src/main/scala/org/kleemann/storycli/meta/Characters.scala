@@ -26,10 +26,12 @@ object Characters {
             if (lines.isEmpty) Right(cs.reverse)
             else {
                 val line = lines.head
-                if (line.startsWith("## Template")) characterLoop(lines.tail, cs)
-                else if (line.startsWith(namePrefix)) {
-                    val c = roleLoop(lines.tail, line.stripPrefix(namePrefix).trim )
-                    characterLoop(lines.tail, c :: cs )
+                if (line.startsWith(namePrefix)) {
+                    if (line.startsWith("## Template")) characterLoop(lines.tail, cs)
+                    else {
+                        val c = roleLoop(lines.tail, line.stripPrefix(namePrefix).trim )
+                        characterLoop(lines.tail, c :: cs )
+                    }
                 } else characterLoop(lines.tail, cs)
             }
         }
