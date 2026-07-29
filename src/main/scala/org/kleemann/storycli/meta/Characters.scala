@@ -7,8 +7,8 @@ object Characters {
     val filename = "characters.md"
 
     def extract(repo: os.Path): Either[String, List[Character]] =
-        pipe(extractFile(repo,filename), org.kleemann.storycli.meta.list.Character.create)
+        pipe(extractFile(repo,filename), list.Character.create)
 
     def read(dir: os.Path): Either[String, List[Character]] =
-        pipe(readFile(dir / filename), org.kleemann.storycli.meta.list.Character.create)
+        pipe(readFile(dir / filename), list.Character.create)
 }
