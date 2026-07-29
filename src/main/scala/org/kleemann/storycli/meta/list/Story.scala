@@ -89,4 +89,9 @@ object Story {
         loop(lines, 0, None, Nil)
     }
 
+    def extract(repo: os.Path, filename: String = meta.Story.defaultFilename): Either[String, meta.Story] =
+        meta.pipe(extractFile(repo, filename), create)
+
+    def read(dir: os.Path, filename: String = meta.Story.defaultFilename): Either[String, meta.Story] =
+        meta.pipe(readFile(dir / filename), create)
 }

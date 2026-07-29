@@ -7,8 +7,8 @@ object Premise {
     val filename = "premise.md"
 
     def extract(repo: os.Path): Either[String, Premise] =
-        pipe(extractFile(repo,filename), list.Premise.create)
+        list.Premise.extract(repo)
 
     def read(dir: os.Path): Either[String, Premise] =
-        pipe(readFile(dir / filename), list.Premise.create)
+        list.Premise.read(dir)
 }

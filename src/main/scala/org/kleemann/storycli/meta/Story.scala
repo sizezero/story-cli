@@ -177,11 +177,12 @@ object Story {
     val defaultFilename = "story.md"
 
     def extract(repo: os.Path, filename: String = defaultFilename): Either[String, Story] =
-        pipe(extractFile(repo,filename), list.Story.create)
+        list.Story.extract(repo, filename)
 
     def read(dir: os.Path, filename: String = defaultFilename): Either[String, Story] =
-        pipe(readFile(dir / filename), list.Story.create)
+        list.Story.read(dir, filename)
 
-    def create(lines: List[String]): Either[String, Story] =  list.Story.create(lines)
+    def create(lines: List[String]): Either[String, Story] =
+        list.Story.create(lines)
 
 }

@@ -25,4 +25,9 @@ object Premise {
         loop(lines)
     }
 
+    def extract(repo: os.Path): Either[String, meta.Premise] =
+        meta.pipe(extractFile(repo, meta.Premise.filename), create)
+
+    def read(dir: os.Path): Either[String, meta.Premise] =
+        meta.pipe(readFile(dir / meta.Premise.filename), create)
 }

@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 
 import org.kleemann.storycli.meta
 
-object Character {
+object Characters {
 
     def create(lines: List[String]): Either[String, List[meta.Character]] =  {
 
@@ -38,4 +38,9 @@ object Character {
         characterLoop(lines, Nil)
     }
 
+    def extract(repo: os.Path): Either[String, List[meta.Character]] =
+        meta.pipe(extractFile(repo, meta.Characters.filename), create)
+
+    def read(dir: os.Path): Either[String, List[meta.Character]] =
+        meta.pipe(readFile(dir / meta.Characters.filename), create)
 }
