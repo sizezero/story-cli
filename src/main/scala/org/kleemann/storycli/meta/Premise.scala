@@ -10,5 +10,5 @@ object Premise {
         list.Premise.extract(repo)
 
     def read(dir: os.Path): Either[String, Premise] =
-        list.Premise.read(dir)
+        stream.Premise.read(dir)
 }
