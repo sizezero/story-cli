@@ -1,8 +1,8 @@
 package org.kleemann.storycli.meta.list
 
-import org.kleemann.storycli.meta
-
 import scala.annotation.tailrec
+
+import org.kleemann.storycli.meta
 
 object Premise {
 
