@@ -67,7 +67,8 @@ object SummaryCommand extends Command {
                 // TODO: I don't appear to be using the local repo option
                 case None => {
                     // sanity check we are in a local git repository
-                    if (!os.exists(os.pwd / ".git" )) Left("current directory does not appear to be a local git repository")
+                    if (!os.exists(os.pwd / ".git" ))
+                        Left("current directory does not appear to be a local git repository")
                     else {
                         val sf = StoriesFolder(go)
                         val storyDir = sf.checkouts subRelativeTo os.pwd
