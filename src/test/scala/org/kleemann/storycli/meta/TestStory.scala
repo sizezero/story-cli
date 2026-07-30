@@ -238,4 +238,41 @@ class TestStory extends munit.FunSuite {
                 )
             }
     }
+
+    test("word count with comments") {
+        val in: List[String] =
+        """---
+        |title:   my title
+        |
+        |<!-- begin incident: first incident
+        |end incident -->
+        |
+        |One line of text.
+        |
+        |<!-- this is a comment followed by an empty comment -->
+        |<!---->
+        |
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |
+        |<!-- another one line comment -->
+        |
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |A long line of text that is ten words long.
+        |
+        |""".stripMargin.linesIterator.toList
+
+        assertEquals(
+            Story.create(in),
+            Right(Story("my title",
+                List(
+                    Incident("first incident", Nil, 104),
+            ))))
+    }
 }

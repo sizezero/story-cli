@@ -17,6 +17,7 @@ object Story {
     private val incidentStartRe = """^<!-- begin incident:\s+([\w:-? ]+)\s*$""".r
     private val columnRe        = """^Column:\s*([\w-? ]+)\s*:\s*([\S ]+)\s*$""".r
     private val incidentEndRe   = """^end incident -->$""".r
+    private val htmlCommentRe   = """^<!--.*-->$""".r
 
     private case class Builder(
         prevLineNo:   Int                 = 0,
@@ -38,8 +39,13 @@ object Story {
                         skip
                     else if (lineNo == 2) {
                         line match
-                            case titleRe(t) => Right(this.copy(title = Some(t.trim), prevLineNo = lineNo))
-                            case _ => err("title required on line 2")
+                            case titleRe(t) =>
+                                Right(this.copy(
+                                    prevLineNo = lineNo,
+                                    title = Some(t.trim),
+                                ))
+                            case _ =>
+                                err("title required on line 2")
                     } else
                         // I don't see how we can get here
                         err("title must be specified before line 2")
@@ -96,6 +102,8 @@ object Story {
                                         }
                                         case incidentEndRe() =>
                                             Left(s"error(${lineNo}) unexcpected incident end while in incident text")
+                                        case htmlCommentRe() =>
+                                            skip
                                         case _ => {
                                             val t = line.trim
                                             val additionalWordCount = if (t == "") 0 else t.split("\\s+").length
@@ -139,7 +147,6 @@ object Story {
                                     ))
                                 }
                             }
-
                         }
                     }
                 }
@@ -147,28 +154,27 @@ object Story {
         }
     }
 
-    def create(lines: Iterator[String]): Either[String, meta.Story] =  {
-
-        // This is a foldLeft but breaks out when the returned Either value is the Left argument
-        // the signature is foldLeft with the returned B replaced with Either[E, B]
-        def foldLeftWhileRight[A, B, E](it: Iterator[A], z: B)(op: (B, A) => Either[E, B]): Either[E, B] = {
-            // since we are consuming from a mutable iterator
-            // I'm not sure if it even makes sense to do this functionally
-            var acc: Either[E, B] = Right(z)
-            var keepRunning = true
-            while (keepRunning && it.hasNext) {
-                keepRunning = acc match
-                    case Left(_)  => false
-                    case Right(b) => {
-                        acc = op(b, it.next())
-                        true
-                    }
-            }
-            acc
-        }
-
-        foldLeftWhileRight(lines, Builder()){ (b, line) => b.add(line) }.flatMap{ _.toStory }
+    // This is a foldLeft but breaks out when the returned Either value is the Left argument
+    // the signature is foldLeft with the returned B replaced with Either[E, B]
+    private def foldLeftWhileRight[A, B, E](it: Iterator[A], z: B)(op: (B, A) => Either[E, B]): Either[E, B] = {
+        // since we are consuming from a mutable iterator
+        // I'm not sure if it even makes sense to do this functionally
+        var acc: Either[E, B] = Right(z)
+        var keepRunning = true
+        while (keepRunning && it.hasNext)
+            keepRunning = acc match
+                case Left(_)  => false
+                case Right(b) => {
+                    acc = op(b, it.next())
+                    true
+                }
+        acc
     }
+
+    def create(lines: Iterator[String]): Either[String, meta.Story] =
+        foldLeftWhileRight(lines, Builder()) {
+            (builder, line) => builder.add(line)
+        }.flatMap{ _.toStory }
 
     def extract(repo: os.Path, filename: String = meta.Story.defaultFilename): Either[String, meta.Story] =
         extractFile(repo, filename).flatMap{ create(_) }
