@@ -27,10 +27,13 @@ object Characters {
                 }
                 case Some(name) => {
                     // we are within the character block and looking for the role
-                    if (line.startsWith("#")) {
+                    if (line.startsWith("#"))
                         // we have reached the next character block so no role was specified
                         // hand the current line back to the parser to parse the next character name
                         this.copy(characters = noRoleCharacter(name) :: characters, name=None).add(line)
+                    else if (line.startsWith(rolePrefix)) {
+                        val c = meta.Character(name, line.stripPrefix(rolePrefix).trim)
+                        this.copy(characters = c :: characters,  name=None).add(line)
                     } else
                         this
                 }
