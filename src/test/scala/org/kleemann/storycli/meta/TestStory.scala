@@ -12,7 +12,7 @@ class TestStory extends munit.FunSuite {
 
         assertEquals(
             Story.create(in),
-            Left("title required on line 2"))
+            Left("error(2): title required on line 2"))
     }
 
     test("title only") {
@@ -138,7 +138,7 @@ class TestStory extends munit.FunSuite {
         // trailing space after title
 
         Story.create(in) match
-            case Left(error) => assertEquals("error(7): file ended while looking for end of incident: template", error)
+            case Left(error) => assertEquals("error(EOF): file ended while looking for end of incident: template", error)
             case Right(story) => assert(false, story)
     }
 

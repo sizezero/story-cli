@@ -12,10 +12,10 @@ object Premise {
       * @param in
       * @return
       */
-    def create(lines: Stream[String]): Either[String, meta.Premise] =
+    def create(lines: Iterator[String]): Either[String, meta.Premise] =
         lines.find{ line => !line.startsWith("#") && !line.forall{ _.isWhitespace }} match
             case None => Left("empty premise.md")
-            case Some(line) => Right(meta.Premise(removeNewlines(lines.head).trim))
+            case Some(line) => Right(meta.Premise(removeNewlines(line).trim))
 
     def extract(repo: os.Path): Either[String, meta.Premise] =
         meta.pipe(extractFile(repo, meta.Premise.filename), create)

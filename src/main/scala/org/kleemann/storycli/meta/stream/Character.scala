@@ -45,7 +45,7 @@ object Characters {
         }
     }
 
-    def create(lines: Stream[String]): Either[String, List[meta.Character]] =  {
+    def create(lines: Iterator[String]): Either[String, List[meta.Character]] =  {
         // It's kind of amazing that there is no error case in parsing.
         // We still return Either so that we match the meta.pipe signature.
 
