@@ -39,8 +39,8 @@ object Characters {
     }
 
     def extract(repo: os.Path): Either[String, List[meta.Character]] =
-        meta.pipe(extractFile(repo, meta.Characters.filename), create)
+        extractFile(repo, meta.Characters.filename).flatMap{ create(_) }
 
     def read(dir: os.Path): Either[String, List[meta.Character]] =
-        meta.pipe(readFile(dir / meta.Characters.filename), create)
+        readFile(dir / meta.Characters.filename).flatMap{ create(_) }
 }

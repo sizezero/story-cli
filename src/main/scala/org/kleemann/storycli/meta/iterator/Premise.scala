@@ -18,9 +18,9 @@ object Premise {
             case Some(line) => Right(meta.Premise(removeNewlines(line).trim))
 
     def extract(repo: os.Path): Either[String, meta.Premise] =
-        meta.pipe(extractFile(repo, meta.Premise.filename), create)
+        extractFile(repo, meta.Premise.filename).flatMap{ create(_) }
 
     def read(dir: os.Path): Either[String, meta.Premise] =
-        meta.pipe(readFile(dir / meta.Premise.filename), create)
+        readFile(dir / meta.Premise.filename).flatMap{ create(_) }
 }
 

@@ -171,8 +171,8 @@ object Story {
     }
 
     def extract(repo: os.Path, filename: String = meta.Story.defaultFilename): Either[String, meta.Story] =
-        meta.pipe(extractFile(repo, filename), create)
+        extractFile(repo, filename).flatMap{ create(_) }
 
     def read(dir: os.Path, filename: String = meta.Story.defaultFilename): Either[String, meta.Story] =
-        meta.pipe(readFile(dir / filename), create)
+        readFile(dir / filename).flatMap{ create(_) }
 }
