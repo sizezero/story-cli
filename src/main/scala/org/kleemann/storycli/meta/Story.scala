@@ -181,9 +181,4 @@ object Story {
 
     def read(dir: os.Path, filename: String = defaultFilename): Either[String, Story] =
         iterator.Story.read(dir, filename)
-
-    // for testing
-    def create(lines: List[String]): Either[String, Story] =
-        iterator.Story.create(lines.iterator)
-
 }

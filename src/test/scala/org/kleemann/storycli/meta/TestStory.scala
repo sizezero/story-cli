@@ -5,43 +5,43 @@ import org.kleemann.storycli.GlobalOptions
 class TestStory extends munit.FunSuite {
 
     test("no title") {
-        val in: List[String] = 
+        val in: Iterator[String] = 
         """Line one
         |Line two
-        |Line three""".stripMargin.linesIterator.toList
+        |Line three""".stripMargin.linesIterator
 
         assertEquals(
-            Story.create(in),
+            iterator.Story.create(in),
             Left("error(2): title required on line 2"))
     }
 
     test("title only") {
-        val in: List[String] = 
+        val in: Iterator[String] = 
         """---
         |title:    my title 
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
         // trailing space after title
 
         assertEquals(
-            Story.create(in),
+            iterator.Story.create(in),
             Right(Story("my title", Nil)))
     }
 
     test("title with comma and upper case") {
-        val in: List[String] =
+        val in: Iterator[String] =
         """---
         |title: Love, Prey, Eat
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
         // trailing space after title
 
         assertEquals(
-            Story.create(in),
+            iterator.Story.create(in),
             Right(Story("Love, Prey, Eat", Nil)))
     }
 
 
     test("single template incident") {
-        val in: List[String] = 
+        val in: Iterator[String] = 
         """---
         |title:   my title 
         |
@@ -56,16 +56,16 @@ class TestStory extends munit.FunSuite {
         |
         |Some body text.
         |
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
         // trailing space after title
 
         assertEquals(
-            Story.create(in),
+            iterator.Story.create(in),
             Right(Story("my title", Nil)))
     }
 
     test("good long story") {
-        val in: List[String] = 
+        val in: Iterator[String] = 
         """---
         |title:   my title 
         |
@@ -105,11 +105,11 @@ class TestStory extends munit.FunSuite {
         |A long line of text that is ten words long.
         |A long line of text that is ten words long.
         |
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
         // trailing space after title
 
         assertEquals(
-            Story.create(in),
+            iterator.Story.create(in),
             Right(Story("my title", 
                 List(
                     Incident("first incident", Nil, 0),
@@ -126,7 +126,7 @@ class TestStory extends munit.FunSuite {
     }
 
     test("start incident with no end (file ends)") {
-        val in: List[String] = 
+        val in: Iterator[String] = 
         """---line 1
         |title:   my title 
         |
@@ -134,16 +134,16 @@ class TestStory extends munit.FunSuite {
         |
         |various text
         |
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
         // trailing space after title
 
-        Story.create(in) match
+        iterator.Story.create(in) match
             case Left(error) => assertEquals("error(EOF): file ended while looking for end of incident: template", error)
             case Right(story) => assert(false, story)
     }
 
     test("start incident with no end (new incident starts)") {
-        val in: List[String] = 
+        val in: Iterator[String] = 
         """---line 1
         |title:   my title 
         |
@@ -153,16 +153,16 @@ class TestStory extends munit.FunSuite {
         |
         |<!-- begin incident: bar
         |
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
         // trailing space after title
 
-        Story.create(in) match
+        iterator.Story.create(in) match
             case Left(error) => assertEquals("error(8): second start of incident. incident: foo", error)
             case Right(story) => assert(false, story)
     }
 
     test("big csv") {
-        val in: List[String] =
+        val in: Iterator[String] =
         """---
         |title:   my title
         |
@@ -191,9 +191,9 @@ class TestStory extends munit.FunSuite {
         |Column: Conversation: jokes
         |end incident -->
         |
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
 
-        Story.create(in) match
+        iterator.Story.create(in) match
             case Left(error) => assert(false, error)
             case Right(story) => {
                 assertEquals(
@@ -213,7 +213,7 @@ class TestStory extends munit.FunSuite {
 
     test("escaped csv") {
 
-        val in: List[String] =
+        val in: Iterator[String] =
         """---
         |title: my title
         |
@@ -223,9 +223,9 @@ class TestStory extends munit.FunSuite {
         |Column: punctuation: ~!@#$%^&*()_+-=`,;:'",.<>/?
         |end incident -->
         |
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
 
-        Story.create(in) match
+        iterator.Story.create(in) match
             case Left(error) => assert(false, error)
             case Right(story) => {
                 assertEquals(
@@ -240,7 +240,7 @@ class TestStory extends munit.FunSuite {
     }
 
     test("word count with comments") {
-        val in: List[String] =
+        val in: Iterator[String] =
         """---
         |title:   my title
         |
@@ -266,10 +266,10 @@ class TestStory extends munit.FunSuite {
         |A long line of text that is ten words long.
         |A long line of text that is ten words long.
         |
-        |""".stripMargin.linesIterator.toList
+        |""".stripMargin.linesIterator
 
         assertEquals(
-            Story.create(in),
+            iterator.Story.create(in),
             Right(Story("my title",
                 List(
                     Incident("first incident", Nil, 104),
