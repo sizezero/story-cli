@@ -7,8 +7,8 @@ object Characters {
     val filename = "characters.md"
 
     def extract(repo: os.Path): Either[String, List[Character]] =
-        stream.Characters.extract(repo)
+        iterator.Characters.extract(repo)
 
     def read(dir: os.Path): Either[String, List[Character]] =
-        stream.Characters.read(dir)
+        iterator.Characters.read(dir)
 }

@@ -1,6 +1,6 @@
 package org.kleemann.storycli.meta
 
-package object stream {
+package object iterator {
   
     def extractFile(gitRepo: os.Path, filename: String): Either[String, Iterator[String]] = {
         if (!os.exists(gitRepo)) Left(s"git repo dir does not exist: ${gitRepo.toString}")
