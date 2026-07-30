@@ -3,7 +3,7 @@ package org.kleemann.storycli.command
 import scala.annotation.tailrec
 
 import org.kleemann.storycli.{GlobalOptions, StoriesFolder}
-import org.kleemann.storycli.meta.{Character, Characters, Premise}
+import org.kleemann.storycli.meta.{Character, Characters, Premise, Story}
 
 object SummaryCommand extends Command {
 
@@ -41,11 +41,17 @@ object SummaryCommand extends Command {
         loop(args, None)
     }
 
-    def render(title: String, ep: Either[String, Premise], ecs: Either[String, List[Character]]): List[String] = {
-        s"title: $title" ::
+    def render(storyDir: os.SubPath, ep: Either[String, Premise], ecs: Either[String, List[Character]], es: Either[String, Story]): List[String] = {
+        (es match
+            case Left(error)  => s"title   : ERROR ${error}"
+            case Right(story) => s"title   : ${story.title}"
+        ) ::
+        (
+            s"dir     : ${storyDir.toString()}"
+        ) ::
         (ep match
-            case Left(error) => s"ERROR: $error"
-            case Right(p) => "premise: "+p.oneLine
+            case Left(error) => s"premise : ERROR: $error"
+            case Right(p)    => s"premise : ${p.oneLine}"
         ) ::
         (ecs match
             case Left(error) => List(s"ERROR: $error")
@@ -62,16 +68,19 @@ object SummaryCommand extends Command {
                 case None => {
                     // sanity check we are in a local git repository
                     if (!os.exists(os.pwd / ".git" )) Left("current directory does not appear to be a local git repository")
-                    else Right(render(os.pwd.last, Premise.read(os.pwd), Characters.read(os.pwd)))
+                    else {
+                        val sf = StoriesFolder(go)
+                        val storyDir = sf.checkouts subRelativeTo os.pwd
+                        Right(render(storyDir, Premise.read(os.pwd), Characters.read(os.pwd), Story.read(os.pwd)))
+                    }
                 }
                 case Some(subPath) => {
                     // remote dir summary
                     // on the server when a path has been specified, we assume local repo
                     val sf = StoriesFolder(go)
                     if (sf.isServer) {
-                        val title = subPath.last
-                        val dir = sf.serverStories / subPath / os.up / (title+".git")
-                        Right(render(title, Premise.extract(dir), Characters.extract(dir)))
+                        val dir = sf.serverStories / subPath / os.up / (subPath.last+".git")
+                        Right(render(subPath, Premise.extract(dir), Characters.extract(dir), Story.extract(dir)))
                     } else {
                         val cmd = ("story-cli" :: go.args).mkString(" ")
                         val result = os.proc("ssh", s"${go.userName}@${go.serverName}", cmd).call()
