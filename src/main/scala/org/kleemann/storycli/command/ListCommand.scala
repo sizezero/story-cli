@@ -48,6 +48,8 @@ object ListCommand extends Command {
             case Left(error)    => error // embed errors in the output
             case Right(premise) => premise.oneLine
 
+    private case class Dir(dir: String, premise: Option[String])
+
     override def run(go: GlobalOptions): Either[String, List[String]] = {
         parse(go.rest) match {
             case Left(error) => Left(error)
@@ -60,19 +62,36 @@ object ListCommand extends Command {
                         sf.serverStories,
                         skip = path => (path / os.up).last.endsWith(".git")
                     )
-                    val ret = customizedWalk.toList.sorted
-                        .flatMap{ path => {
+                    // get a list of dirs and premises
+                    // directories of many stories end in slash
+                    // story dirs may have a premise
+                    val dirs: List[Dir] = customizedWalk.toList
+                        .map{ path => {
                             val dir = path.subRelativeTo(sf.serverStories)
                             if (dir.ext == "git") {
                                 val displayPath = dir.toString.stripSuffix(".git")
                                 if (premise && path.toString.endsWith(".git"))
-                                    List(displayPath, "    "+oneLinePremise(path))
+                                    Dir(displayPath, Some(oneLinePremise(path)))
                                 else
-                                    List(displayPath)
+                                    Dir(displayPath, None)
                             } else {
-                                List(dir.toString + "/")
+                                Dir(dir.toString + "/", None)
                             }
-                        }}
+                        }}.sortBy{ _.dir }
+                    val ret: List[String] =
+                        // list all containing directories
+                        dirs.filter{ _.dir.endsWith("/") }.map{ _.dir }
+                        :::
+                        // visible separator
+                        "---"
+                        ::
+                        // list storie dirs and an optional premise
+                        dirs.filter{ !_.dir.endsWith("/") }
+                        .flatMap{ d =>
+                            d match
+                                case Dir(dir, None)          => List(dir)
+                                case Dir(dir, Some(premise)) => List(dir, "    "+premise)
+                        }
                     Right(ret)
                 } else {
                     // this is a second example of "run this verbatum on the remote server"
