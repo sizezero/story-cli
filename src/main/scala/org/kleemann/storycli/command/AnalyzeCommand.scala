@@ -32,13 +32,15 @@ object AnalyzeCommand extends Command {
         def loop(args: List[String], filename: Option[String], output: Option[Output]): Either[String, (String, Output)] = {
             if (args.isEmpty) {
                 // if either option is not specified, use default values
-                val fn = filename match
-                    case None => Story.defaultFilename
-                    case Some(f) => f
-                val op = output match
+                val fn: Either[String, String] = filename match
+                    case None => Right(Story.defaultFilename)
+                    case Some(f) =>
+                        if (f.contains('/')) Left(s"output file cannot contain a slash: ${f}")
+                        else                 Right(f)
+                val op: Output = output match
                     case None => Output.Sc
                     case Some(o) => o
-                Right(fn, op)
+                fn.flatMap{ Right(_, op) }
             } else {
                 val arg = args.head
                 arg match
