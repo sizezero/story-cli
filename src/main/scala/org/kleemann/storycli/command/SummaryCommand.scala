@@ -53,6 +53,18 @@ object SummaryCommand extends Command {
             case Left(error) => s"premise : ERROR: $error"
             case Right(p)    => s"premise : ${p.oneLine}"
         ) ::
+        (es match
+            case Left(error) => "N/A" // Story error already shown above
+            case Right(story) => {
+                val wordCount = story.incidents.foldLeft(0){ (wc, in) => wc + in.wordCount }
+                // paperbacks are 250 to 300 wpp
+                // single spaced drafts are 500 wpp
+                // most people care about wordcount in working drafts so this is kind of aribrary.
+                val wordsPerPage = 400
+                val pages = (wordCount / wordsPerPage) + 1
+                s"words   : ${wordCount} (${pages} pages)"
+            }
+        ) ::
         (ecs match
             case Left(error) => List(s"ERROR: $error")
             case Right(cs) => "characters:" :: cs.map{ c => s"  ${c.name} (${c.role})" }
