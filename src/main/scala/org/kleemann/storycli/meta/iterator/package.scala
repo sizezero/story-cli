@@ -9,14 +9,14 @@ package object iterator {
             val result = os.proc("sh", "-c" , s"git archive --remote=${gitRepo} HEAD ${filename} | tar xO").call()
             if (result.exitCode == 0)
                 // lines() returns Vector[String] so we don't really get the lazy read benefit of Iterator here
-                Right(result.out.lines().toIterator)
+                Right(result.out.lines().iterator)
             else
                 Left("error running git: "+result.err.text()+result.out.text())
         }
     }
 
     def readFile(file: os.Path): Either[String, Iterator[String]] =
-        if (os.exists(file)) Right(os.read.lines(file).toIterator)
+        if (os.exists(file)) Right(os.read.lines(file).iterator)
         else                 Left(s"file does not exists: ${file.toString}")
 
 }
