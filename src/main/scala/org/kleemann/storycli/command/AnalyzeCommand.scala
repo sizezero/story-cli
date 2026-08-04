@@ -64,7 +64,7 @@ object AnalyzeCommand extends Command {
                 case Right(story) =>
                     if (!os.exists(os.pwd / ".gitignore")) Left("error: current directory does not appear to be a git working copy")
                     else {
-                        // target diretory must exist
+                        // target directory must exist
                         val target = os.pwd / "target"
                         os.makeDir.all(target)
                         output match
