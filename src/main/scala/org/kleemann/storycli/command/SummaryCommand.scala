@@ -41,20 +41,20 @@ object SummaryCommand extends Command {
         loop(args, None)
     }
 
-    def render(storyDir: os.SubPath, ep: Either[String, Premise], ecs: Either[String, List[Character]], es: Either[String, Story]): List[String] = {
+    def render(storyDir: os.SubPath, ep: Either[String, Premise], ecs: Either[String, List[Character]], es: Either[String, Story], date: Either[String, String]): List[String] = {
         (es match
-            case Left(error)  => s"title   : ERROR ${error}"
-            case Right(story) => s"title   : ${story.title}"
+            case Left(error)  => s"title       : ERROR ${error}"
+            case Right(story) => s"title       : ${story.title}"
         ) ::
         (
-            s"dir     : ${storyDir.toString()}"
+            s"dir         : ${storyDir.toString()}"
         ) ::
         (ep match
-            case Left(error) => s"premise : ERROR: $error"
-            case Right(p)    => s"premise : ${p.oneLine}"
+            case Left(error) => s"premise     : ERROR: $error"
+            case Right(p)    => s"premise     : ${p.oneLine}"
         ) ::
         (es match
-            case Left(error) => "N/A" // Story error already shown above
+            case Left(error) => "words       : N/A" // Story error already shown above
             case Right(story) => {
                 val wordCount = story.incidents.foldLeft(0){ (wc, in) => wc + in.wordCount }
                 // paperbacks are 250 to 300 wpp
@@ -62,14 +62,24 @@ object SummaryCommand extends Command {
                 // most people care about wordcount in working drafts so this is kind of aribrary.
                 val wordsPerPage = 400
                 val pages = (wordCount / wordsPerPage) + 1
-                s"words   : ${wordCount} (${pages} pages)"
+                s"words       : ${wordCount} (${pages} pages)"
             }
+        ) ::
+        (date match
+            case Left(error) => s"last commit : ${error}"
+            case Right(dt)   => s"last commit : ${dt}"
         ) ::
         (ecs match
             case Left(error) => List(s"ERROR: $error")
             case Right(cs) => "characters:" :: cs.map{ c => s"  ${c.name} (${c.role})" }
 
         )
+    }
+
+    def dateOfLastGitCommit(dir: os.Path): Either[String,String] = {
+        val result = os.call(cwd = dir, cmd = ("git" :: "log" :: "-1" :: "--format=%cs" :: Nil))
+        if (result.exitCode == 0) Right(result.out.trim())
+        else                      Left(result.err.trim())
     }
 
     override def run(go: GlobalOptions): Either[String, List[String]] = {
@@ -84,7 +94,7 @@ object SummaryCommand extends Command {
                     else {
                         val sf = StoriesFolder(go)
                         val storyDir = sf.checkouts subRelativeTo os.pwd
-                        Right(render(storyDir, Premise.read(os.pwd), Characters.read(os.pwd), Story.read(os.pwd)))
+                        Right(render(storyDir, Premise.read(os.pwd), Characters.read(os.pwd), Story.read(os.pwd), dateOfLastGitCommit(os.pwd)))
                     }
                 }
                 case Some(subPath) => {
@@ -93,7 +103,7 @@ object SummaryCommand extends Command {
                     val sf = StoriesFolder(go)
                     if (sf.isServer) {
                         val dir = sf.serverStories / subPath / os.up / (subPath.last+".git")
-                        Right(render(subPath, Premise.extract(dir), Characters.extract(dir), Story.extract(dir)))
+                        Right(render(subPath, Premise.extract(dir), Characters.extract(dir), Story.extract(dir), dateOfLastGitCommit(dir)))
                     } else {
                         val cmd = ("story-cli" :: go.args).mkString(" ")
                         val result = os.proc("ssh", s"${go.userName}@${go.serverName}", cmd).call()
