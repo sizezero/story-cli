@@ -77,7 +77,7 @@ object SummaryCommand extends Command {
     }
 
     def dateOfLastGitCommit(dir: os.Path): Either[String,String] = {
-        val result = os.call(cwd = dir, cmd = ("git" :: "log" :: "-1" :: "--format=%cs" :: Nil))
+        val result = os.call(cwd = dir, cmd = List("git", "log", "-1", "--format=%cs"))
         if (result.exitCode == 0) Right(result.out.trim())
         else                      Left(result.err.trim())
     }
@@ -103,7 +103,10 @@ object SummaryCommand extends Command {
                     val sf = StoriesFolder(go)
                     if (sf.isServer) {
                         val dir = sf.serverStories / subPath / os.up / (subPath.last+".git")
-                        Right(render(subPath, Premise.extract(dir), Characters.extract(dir), Story.extract(dir), dateOfLastGitCommit(dir)))
+                        if (!os.exists(dir))
+                            Left(s"server story path not found: ${dir}")
+                        else
+                            Right(render(subPath, Premise.extract(dir), Characters.extract(dir), Story.extract(dir), dateOfLastGitCommit(dir)))
                     } else {
                         val cmd = ("story-cli" :: go.args).mkString(" ")
                         val result = os.proc("ssh", s"${go.userName}@${go.serverName}", cmd).call()
