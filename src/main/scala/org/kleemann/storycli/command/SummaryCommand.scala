@@ -93,7 +93,7 @@ object SummaryCommand extends Command {
                         Left("current directory does not appear to be a local git repository")
                     else {
                         val sf = StoriesFolder(go)
-                        val storyDir = sf.checkouts subRelativeTo os.pwd
+                        val storyDir = os.pwd subRelativeTo sf.checkouts
                         Right(render(storyDir, Premise.read(os.pwd), Characters.read(os.pwd), Story.read(os.pwd), dateOfLastGitCommit(os.pwd)))
                     }
                 }
