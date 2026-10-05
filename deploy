@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [[ $# -ne 1 || ( "$1" != "local" && "$1" != "remote" ) ]]; then
-    echo "usage: deploy ( local | remote )"
+if [[ $# -ne 1 || ( "$1" != "local" && "$1" != "hector" && "$1" != "asus" ) ]]; then
+    echo "usage: deploy ( local | hector | asus )"
     exit 1
 fi
 
@@ -30,7 +30,7 @@ if [[ "$ARG" == "local"  ]]; then
     cp "$SRC_SCRIPT/$SCRIPT" "$DST_SCRIPT"
     cp "$SRC_JAR/$JAR"       "$DST_JAR"
 
-elif [[ "$ARG" == "remote" ]]; then
+elif [[ "$ARG" == "hector" ]]; then
 
     # copy from already deployed local to remote
     # this makes it more likely that the local and remote are in sync
@@ -39,6 +39,16 @@ elif [[ "$ARG" == "remote" ]]; then
     #scp "$DST_SCRIPT/$SCRIPT" robert@hector:$DST_SCRIPT
 
     scp "$DST_JAR/$JAR"       robert@hector:$DST_JAR
+
+elif [[ "$ARG" == "asus" ]]; then
+
+    # copy from already deployed local to remote
+    # this makes it more likely that the local and remote are in sync
+
+    # script is rarely updated; uncomment this temporarily if necessary
+    #scp "$DST_SCRIPT/$SCRIPT" robert@asus:$DST_SCRIPT
+
+    scp "$DST_JAR/$JAR"       robert@asus:$DST_JAR
 
 else
     echo "unexpected argument value: $ARG"
