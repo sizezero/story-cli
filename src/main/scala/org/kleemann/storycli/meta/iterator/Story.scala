@@ -101,7 +101,7 @@ object Story {
                                             ))
                                         }
                                         case incidentEndRe() =>
-                                            Left(s"error(${lineNo}) unexcpected incident end while in incident text")
+                                            Left(s"error(${lineNo}) unexpected incident end while in incident text")
                                         case htmlCommentRe() =>
                                             skip
                                         case _ => {
