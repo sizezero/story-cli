@@ -141,7 +141,7 @@ object Story {
                                     Right(meta.Story(
                                         title, 
                                         if (iname=="template")
-                                            incidents
+                                            incidents.reverse
                                         else
                                             (meta.Incident(iname, columns.reverse, wc) :: incidents).reverse
                                     ))
@@ -155,7 +155,8 @@ object Story {
     }
 
     // This is a foldLeft but breaks out when the returned Either value is the Left argument
-    // the signature is foldLeft with the returned B replaced with Either[E, B]
+    // the signature is foldLeft with the returned B replaced with Either[E, B] where E is the 
+    // error type often a String.
     private def foldLeftWhileRight[A, B, E](it: Iterator[A], z: B)(op: (B, A) => Either[E, B]): Either[E, B] = {
         // since we are consuming from a mutable iterator
         // I'm not sure if it even makes sense to do this functionally
