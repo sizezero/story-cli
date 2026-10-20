@@ -11,7 +11,7 @@ class TestStory extends munit.FunSuite {
         |Line three""".stripMargin.linesIterator
 
         assertEquals(
-            iterator.Story.create(in),
+            Story.create(in),
             Left("error(2): title required on line 2"))
     }
 
@@ -23,7 +23,7 @@ class TestStory extends munit.FunSuite {
         // trailing space after title
 
         assertEquals(
-            iterator.Story.create(in),
+            Story.create(in),
             Right(Story("my title", Nil)))
     }
 
@@ -35,7 +35,7 @@ class TestStory extends munit.FunSuite {
         // trailing space after title
 
         assertEquals(
-            iterator.Story.create(in),
+            Story.create(in),
             Right(Story("Love, Prey, Eat", Nil)))
     }
 
@@ -60,7 +60,7 @@ class TestStory extends munit.FunSuite {
         // trailing space after title
 
         assertEquals(
-            iterator.Story.create(in),
+            Story.create(in),
             Right(Story("my title", Nil)))
     }
 
@@ -109,7 +109,7 @@ class TestStory extends munit.FunSuite {
         // trailing space after title
 
         assertEquals(
-            iterator.Story.create(in),
+            Story.create(in),
             Right(Story("my title", 
                 List(
                     Incident("first incident", Nil, 0),
@@ -137,7 +137,7 @@ class TestStory extends munit.FunSuite {
         |""".stripMargin.linesIterator
         // trailing space after title
 
-        iterator.Story.create(in) match
+        Story.create(in) match
             case Left(error) => assertEquals("error(EOF): file ended while looking for end of incident: template", error)
             case Right(story) => assert(false, story)
     }
@@ -156,7 +156,7 @@ class TestStory extends munit.FunSuite {
         |""".stripMargin.linesIterator
         // trailing space after title
 
-        iterator.Story.create(in) match
+        Story.create(in) match
             case Left(error) => assertEquals("error(8): second start of incident. incident: foo", error)
             case Right(story) => assert(false, story)
     }
@@ -193,7 +193,7 @@ class TestStory extends munit.FunSuite {
         |
         |""".stripMargin.linesIterator
 
-        iterator.Story.create(in) match
+        Story.create(in) match
             case Left(error) => assert(false, error)
             case Right(story) => {
                 assertEquals(
@@ -225,7 +225,7 @@ class TestStory extends munit.FunSuite {
         |
         |""".stripMargin.linesIterator
 
-        iterator.Story.create(in) match
+        Story.create(in) match
             case Left(error) => assert(false, error)
             case Right(story) => {
                 assertEquals(
@@ -269,7 +269,7 @@ class TestStory extends munit.FunSuite {
         |""".stripMargin.linesIterator
 
         assertEquals(
-            iterator.Story.create(in),
+            Story.create(in),
             Right(Story("my title",
                 List(
                     Incident("first incident", Nil, 104),

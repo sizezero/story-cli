@@ -1,6 +1,6 @@
-package org.kleemann.storycli.meta
+package org.kleemann.storycli
 
-package object iterator {
+package object meta {
   
     def extractFile(gitRepo: os.Path, filename: String): Either[String, Iterator[String]] = {
         if (!os.exists(gitRepo)) Left(s"git repo dir does not exist: ${gitRepo.toString}")
@@ -16,6 +16,9 @@ package object iterator {
     }
 
     def readFile(file: os.Path): Either[String, Iterator[String]] =
+        // TODO: I'm pretty sure this reads the entire file into memory.
+        // We should use os.read.lines.generator(file) and somehow reconfigure the consumers of this
+        // maybe we want all the consumers to take a Generator[String] ?
         if (os.exists(file)) Right(os.read.lines(file).iterator)
         else                 Left(s"file does not exists: ${file.toString}")
 
