@@ -10,41 +10,49 @@ object ListCommand extends Command {
 
     override val commandName = "list"
 
-    override val commandLineHelp = "story-cli list [ -p | --premise ] [ -l | --local ]"
+    override val commandLineHelp = "story-cli list [ -p | --premise ] [ -d | --directory ] [ -l | --local ]"
 
     override val oneLineHelp = "list all stories"
 
     override val multiLineHelp = List(
         "The story name is shown with the directory prefix.",
         "If --premise is specified, then the one line premise from premise.md is also shown.",
-        "If --local is selected then only local repos are shown as well as their git status",
-        "In normal mode all displayed information comes from the remote repos",
-        "In local mode all displayed information comes from the local, checked out repos",
+        "If --directory is specified, then only repo directories are shown.",
+        "If --local is selected then only local repos are shown as well as their git status.",
+        "In normal mode all displayed information comes from the remote repos.",
+        "In local mode all displayed information comes from the local, checked out repos.",
+        "Both --premise and --directory cannot be specified.",
+        "Both --directory and --local cannot be specified."
     )
 
-    case class Args(premise: Boolean, local: Boolean)
+    case class Args(premise: Boolean, directory: Boolean, local: Boolean)
 
-    // returned values are (premise: boolean, local: boolean)
     def parse(in: List[String]): Either[String, Args] = {
         @tailrec
         def loop(in: List[String], args: Args): Either[String, Args] = {
-            if (in.isEmpty) Right(args)
-            else in.head match {
+            if (in.isEmpty) {
+                if (args.premise && args.directory)    Left("--premise and --directory cannot both be specified")
+                else if (args.directory && args.local) Left("--directory and --local cannot both be specified")
+                else                                   Right(args)
+            } else in.head match {
                 case "-p" | "--premise" =>
                     if (args.premise) Left("--premise specified more than once")
-                    else loop(in.tail, Args(true, args.local))
+                    else loop(in.tail, Args(true, args.directory, args.local))
+                case "-d" | "--directory" =>
+                    if (args.directory) Left("--directory specified more than once")
+                    else loop(in.tail, Args(args.premise, true, args.local))
                 case "-l" | "--local" =>
                     if (args.local) Left("--local specified more than once")
-                    else loop(in.tail, Args(args.premise, true))
+                    else loop(in.tail, Args(args.premise, args.directory, true))
                 case _ => Left(s"uknown argument: ${in.head}")
             }
         }
-        loop(in, Args(false,false))
+        loop(in, Args(false,false,false))
     }
 
     private case class Dir(dir: String, premise: Option[String])
 
-    private def remoteList(go: GlobalOptions, premise: Boolean): Either[String, List[String]] = {
+    private def remoteList(go: GlobalOptions, premise: Boolean, directory: Boolean): Either[String, List[String]] = {
         def oneLinePremise(repo: Path): String = {
             Premise.extract(repo) match
             case Left(error)    => error // embed errors in the output
@@ -76,18 +84,17 @@ object ListCommand extends Command {
                     }
                 }}.sortBy{ _.dir }
             val ret: List[String] =
-                // list all containing directories
-                dirs.filter{ _.dir.endsWith("/") }.map{ _.dir }
-                :::
-                // visible separator
-                "---"
-                ::
-                // list storie dirs and an optional premise
-                dirs.filter{ !_.dir.endsWith("/") }
-                .flatMap{ d =>
-                    d match
-                        case Dir(dir, None)          => List(dir)
-                        case Dir(dir, Some(premise)) => List(dir, "    "+premise)
+                if (directory) {
+                    // list all containing directories
+                    dirs.filter{ _.dir.endsWith("/") }.map{ _.dir }
+                } else {
+                    // list story dirs and an optional premise
+                    dirs.filter{ !_.dir.endsWith("/") }
+                    .flatMap{ d =>
+                        d match
+                            case Dir(dir, None)          => List(dir)
+                            case Dir(dir, Some(premise)) => List(dir, "    "+premise)
+                    }
                 }
             Right(ret)
         } else {
@@ -150,8 +157,8 @@ object ListCommand extends Command {
     override def run(go: GlobalOptions): Either[String, List[String]] = {
         parse(go.rest) match {
             case Left(error) => Left(error)
-            case Right(Args(premise, false)) => remoteList(go, premise)
-            case Right(Args(premise, true )) => localList (go, premise)
+            case Right(Args(premise, directory, false)) => remoteList(go, premise, directory)
+            case Right(Args(premise, _,         true )) => localList (go, premise)
         }
     }
 }
