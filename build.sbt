@@ -1,4 +1,4 @@
-val scala3Version = "3.8.4"
+val scala3Version = "3.9.0"
 
 lazy val root = project
   .in(file("."))
@@ -10,9 +10,13 @@ lazy val root = project
 
     exportJars := true,
 
-    libraryDependencies += "org.scalameta" %% "munit" % "1.3.2" % Test,
+    //libraryDependencies += "org.scalameta" %% "munit" % "1.3.2" % Test,
 
     // June 2026: I tried to use newer versions but they failed
-    libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.8"
+    //libraryDependencies += "com.lihaoyi" %% "os-lib" % "0.11.8"
+
+    // switching to toolkit to see if that works
+    libraryDependencies += "org.scala-lang" %% "toolkit" % "0.9.2",
+    libraryDependencies += "org.scala-lang" %% "toolkit-test" % "0.9.2" % Test,
 
   )

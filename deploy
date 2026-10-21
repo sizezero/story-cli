@@ -9,9 +9,9 @@ ARG="$1"
 SCRIPT="story-cli"
 JAR="story-cli-assembly-0.1.0-SNAPSHOT.jar"
 SRC_SCRIPT="src/scripts"
-SRC_JAR="target/scala-3.8.4"
-DST_SCRIPT="$HOME/bin/share/story-cli/src/scripts"
-DST_JAR="$HOME/bin/share/story-cli/target/scala-3.8.4"
+SRC_JAR="target/scala-3.9.0"
+DST_SCRIPT="$HOME/bin/share/story-cli/$SRC_SCRIPT"
+DST_JAR="$HOME/bin/share/story-cli/$SRC_JAR"
 
 if [[ "$ARG" == "local"  ]]; then
 
@@ -35,20 +35,16 @@ elif [[ "$ARG" == "hector" ]]; then
     # copy from already deployed local to remote
     # this makes it more likely that the local and remote are in sync
 
-    # script is rarely updated; uncomment this temporarily if necessary
-    #scp "$DST_SCRIPT/$SCRIPT" robert@hector:$DST_SCRIPT
-
-    scp "$DST_JAR/$JAR"       robert@hector:$DST_JAR
+    scp "$DST_SCRIPT/$SCRIPT" hector:$DST_SCRIPT
+    scp "$DST_JAR/$JAR"       hector:$DST_JAR
 
 elif [[ "$ARG" == "asus" ]]; then
 
     # copy from already deployed local to remote
     # this makes it more likely that the local and remote are in sync
 
-    # script is rarely updated; uncomment this temporarily if necessary
-    #scp "$DST_SCRIPT/$SCRIPT" robert@asus:$DST_SCRIPT
-
-    scp "$DST_JAR/$JAR"       robert@asus:$DST_JAR
+    scp "$DST_SCRIPT/$SCRIPT" asus:$DST_SCRIPT
+    scp "$DST_JAR/$JAR"       asus:$DST_JAR
 
 else
     echo "unexpected argument value: $ARG"

@@ -3,4 +3,5 @@
 SD=$(dirname "$(readlink -f "$0")")
 D="$SD/../.."
 
-java -jar "$D/target/scala-3.8.4/story-cli-assembly-0.1.0-SNAPSHOT.jar" "$@"
+# the --add-opens and --sun-misc options are temporary until scala libraries fully fix this problem
+java --add-opens=java.base/java.lang=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow -jar "$D/target/scala-3.9.0/story-cli-assembly-0.1.0-SNAPSHOT.jar" "$@"
