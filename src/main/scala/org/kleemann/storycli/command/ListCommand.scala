@@ -10,50 +10,48 @@ object ListCommand extends Command {
 
     override val commandName = "list"
 
-    override val commandLineHelp = "story-cli list [ -p | --premise ]"
+    override val commandLineHelp = "story-cli list [ -p | --premise ] [ -l | --local ]"
 
-    override val oneLineHelp = "list all stories on the server"
+    override val oneLineHelp = "list all stories"
 
     override val multiLineHelp = List(
         "The story name is shown with the directory prefix.",
         "If --premise is specified, then the one line premise from premise.md is also shown.",
-        "All displayed information is from the server story repos.",
+        "If --local is selected then only local repos are shown as well as their git status",
+        "In normal mode all displayed information comes from the remote repos",
+        "In local mode all displayed information comes from the local, checked out repos",
     )
 
-    // returned booleans are (json, premise)
-    def parse(args: List[String]): Either[String, Boolean] = {
+    case class Args(premise: Boolean, local: Boolean)
+
+    // returned values are (premise: boolean, local: boolean)
+    def parse(in: List[String]): Either[String, Args] = {
         @tailrec
-        def loop(args: List[String], premise: Boolean): Either[String, Boolean] = {
-            if (args.isEmpty) Right(premise)
-            else args.head match {
+        def loop(in: List[String], args: Args): Either[String, Args] = {
+            if (in.isEmpty) Right(args)
+            else in.head match {
                 case "-p" | "--premise" =>
-                    if (premise) Left("--premise specified more than once")
-                    else loop(args.tail, true)
-                case _ => Left(s"uknown argument: ${args.head}")
+                    if (args.premise) Left("--premise specified more than once")
+                    else loop(in.tail, Args(true, args.local))
+                case "-l" | "--local" =>
+                    if (args.local) Left("--local specified more than once")
+                    else loop(in.tail, Args(args.premise, true))
+                case _ => Left(s"uknown argument: ${in.head}")
             }
         }
-        loop(args, false)
+        loop(in, Args(false,false))
     }
-
-    /**
-      * attempts to read the file "premise.md" from the root of the passed git repo.
-      * The one line premise at the top of the page is returned.
-      * If any errors occur, they are returned as the String.
-      *
-      * @param repo
-      * @return
-      */
-    def oneLinePremise(repo: Path): String =
-        Premise.extract(repo) match
-            case Left(error)    => error // embed errors in the output
-            case Right(premise) => premise.oneLine
 
     private case class Dir(dir: String, premise: Option[String])
 
-    override def run(go: GlobalOptions): Either[String, List[String]] = {
-        parse(go.rest) match {
-            case Left(error) => Left(error)
-            case Right(premise) => {
+    private def remoteList(go: GlobalOptions, premise: Boolean): Either[String, List[String]] = {
+        def oneLinePremise(repo: Path): String = {
+            Premise.extract(repo) match
+            case Left(error)    => error // embed errors in the output
+            case Right(premise) => premise.oneLine
+        }
+
+
                 val sf = StoriesFolder(go)
                 if (sf.isServer) {
                     // walk through all dirs until a directory that ends in .git
@@ -100,7 +98,61 @@ object ListCommand extends Command {
                     if (result.exitCode == 0) Right(result.out.lines().toList)
                     else Left(result.err.text()+result.out.text())
                 }
+    }
+
+    private def localList(go: GlobalOptions, premise: Boolean): Either[String, List[String]] = {
+
+        def oneLinePremise(dir: Path): String = {
+            Premise.read(dir) match
+            case Left(error)    => error // embed errors in the output
+            case Right(premise) => "    "+premise.oneLine
+        }
+
+        def status(dir: Path): Option[String] = {
+            val result1 = os.proc("git", "status", "--porcelain").call( cwd = dir )
+            val out1 = 
+                if (result1.exitCode != 0)         "ERROR RUNNING GIT"
+                else if (result1.out.text() == "") ""
+                else                               "UNCOMMITTED"
+            // git rev-list @{u}..HEAD --count
+            val result2 = os.proc("git", "rev-list", "@{u}..HEAD", "--count").call( cwd = dir )
+            val out2 = 
+                if (result1.exitCode != 0)                 "ERROR RUNNING GIT"
+                else if (result2.out.text().trim() == "0") ""
+                else                                       "UNPUSHED"
+            if (out1=="" && out2=="")      None
+            else if (out1!="" && out2=="") Some("    !!! "+out1)
+            else if (out1=="" && out2!="") Some("    !!! "+out2)
+            else                           Some("    !!! "+out1+" "+out2)
+        }
+
+        // get a list of all checked out directories
+        val sf = StoriesFolder(go)
+        // walk through all dirs until a directory that ends in .git
+        // we have to go one directory further since skipped files will not show up in the list
+        val outLines = os.walk(sf.checkouts)
+            .filter{ p => os.isDir(p) && p.last == ".git" }
+            .flatMap{ gitFile =>
+                val d = gitFile / os.up
+                val l1 = d.subRelativeTo(sf.checkouts).toString :: Nil
+                val l2 =
+                    if (premise) oneLinePremise(d) :: l1
+                    else         l1
+                val l3 = status(d) match
+                    case None    => l2
+                    case Some(s) => s :: l2
+                l3.reverse
             }
+            .toList
+
+        Right(outLines)
+    }
+
+    override def run(go: GlobalOptions): Either[String, List[String]] = {
+        parse(go.rest) match {
+            case Left(error) => Left(error)
+            case Right(Args(premise, false)) => remoteList(go, premise)
+            case Right(Args(premise, true )) => localList (go, premise)
         }
     }
 }

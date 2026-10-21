@@ -17,8 +17,10 @@ package object meta {
 
     def readFile(file: os.Path): Either[String, Iterator[String]] =
         // TODO: I'm pretty sure this reads the entire file into memory.
-        // We should use os.read.lines.generator(file) and somehow reconfigure the consumers of this
-        // maybe we want all the consumers to take a Generator[String] ?
+        // We should use os.read.lines.generator(file) but unfortunately Generator
+        // only provides methods for reading the entire file, not part of it. I think
+        // it is designed this way to insure that it can read and closes the resource
+        // atomically.
         if (os.exists(file)) Right(os.read.lines(file).iterator)
         else                 Left(s"file does not exists: ${file.toString}")
 
