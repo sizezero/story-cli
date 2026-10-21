@@ -8,13 +8,12 @@ trait Command {
 
     /**
       * The name of the command as specified on the command line.
-      * It just contains letters, number, and hypenns.
+      * It just contains lowercase letters as per commandNameRe.
       */
     val commandName: String
 
     /**
       * A one line syntax of the command.
-      * TODO: test this and the above value
       */
     val commandLineHelp: String
 
@@ -44,10 +43,6 @@ trait Command {
 object Command {
 
     protected[command] val commandNameRe = """([a-z]+)""".r
-
-    private def longHelp(): List[String] = List(
-
-    )
 
     protected[command] def parse(args: List[String]): Either[String, GlobalOptions] = {
 
@@ -98,7 +93,7 @@ object Command {
                         } else {
                             if (production)       Left("Cannot specify --production when running from a non-production location")
                             else if (development) Right(GlobalOptions(args, false, command, rest))
-                            // development is the default when running from production location
+                            // development is the default when running from development location
                             else                  Right(GlobalOptions(args, false,  command, rest))
                         }
                     }

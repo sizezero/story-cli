@@ -14,6 +14,16 @@ class TestCommand extends munit.FunSuite {
         assert(Command.all.size == Command.all.toSet.size)
     }
 
+    test("several help strings must be one line") {
+        for (cmd <- Command.all) {
+            assert( !cmd.commandLineHelp.contains("\n"),  cmd.commandLineHelp)
+            assert( !cmd.oneLineHelp    .contains("\n"),  cmd.oneLineHelp)
+            for (line <- cmd.multiLineHelp) {
+                assert( !line.contains("\n"),  line)
+            }
+        }
+    }
+
     test("empty") {
         assertEquals( 
             Command.parse(Nil), 
