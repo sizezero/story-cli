@@ -184,11 +184,15 @@ object Story {
     // character as well as spaces so pretty much everything except for tabs
     // and newlines. The latter may be too much for some downstream use.
     // We'll see.
-    private val titleRe         = """^title:\s+([\w:-?, ]+)\s*$""".r
-    private val incidentStartRe = """^<!-- begin incident:\s+([\w:-? ]+)\s*$""".r
-    private val columnRe        = """^Column:\s*([\w-? ]+)\s*:\s*([\S ]+)\s*$""".r
-    private val incidentEndRe   = """^end incident -->$""".r
-    private val htmlCommentRe   = """^<!--.*-->$""".r
+    private val titleRe          = """^title:\s+([\w:-?, ]+)\s*$""".r
+    private val incidentStartRe  = """^<!-- begin incident:\s+([\w:-? ]+)\s*$""".r
+    private val columnRe         = """^Column:\s*([\w-? ]+)\s*:\s*([\S ]+)\s*$""".r
+    private val incidentEndRe    = """^end incident -->$""".r
+    // I tried to combine these two REs into one RE and failed
+    // For some reason it works in the repl
+    // """^(<!--.*-->|---)$"""
+    private val htmlCommentRe    = """^<!--.*-->$""".r
+    private val horizontalRuleRe = """^---$""".r
 
     private case class Builder(
         prevLineNo:   Int                 = 0,
@@ -274,6 +278,8 @@ object Story {
                                         case incidentEndRe() =>
                                             Left(s"error(${lineNo}) unexpected incident end while in incident text")
                                         case htmlCommentRe() =>
+                                            skip
+                                        case horizontalRuleRe() =>
                                             skip
                                         case _ => {
                                             val t = line.trim

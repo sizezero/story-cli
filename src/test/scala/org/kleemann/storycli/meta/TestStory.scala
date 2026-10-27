@@ -258,6 +258,12 @@ class TestStory extends munit.FunSuite {
         |
         |<!-- another one line comment -->
         |
+        |<!-- horizontal rules should not be counted just like comments -->
+        |---
+        |
+        |---
+        |---
+        |
         |A long line of text that is ten words long.
         |A long line of text that is ten words long.
         |A long line of text that is ten words long.
@@ -273,6 +279,25 @@ class TestStory extends munit.FunSuite {
             Right(Story("my title",
                 List(
                     Incident("first incident", Nil, 104),
+            ))))
+    }
+
+    test("one horizontal rule") {
+        val in: Iterator[String] =
+        """---
+        |title:   my title
+        |
+        |<!-- begin incident: first incident
+        |end incident -->
+        |
+        |---
+        |""".stripMargin.linesIterator
+
+        assertEquals(
+            Story.create(in),
+            Right(Story("my title",
+                List(
+                    Incident("first incident", Nil, 0),
             ))))
     }
 }
