@@ -9,7 +9,7 @@ ARG="$1"
 SCRIPT="story-cli"
 JAR="story-cli-assembly-0.1.0-SNAPSHOT.jar"
 SRC_SCRIPT="src/scripts"
-SRC_JAR="target/scala-3.9.0"
+SRC_JAR="target/out/jvm/scala-3.9.0/story-cli"
 DST_SCRIPT="$HOME/bin/share/story-cli/$SRC_SCRIPT"
 DST_JAR="$HOME/bin/share/story-cli/$SRC_JAR"
 
