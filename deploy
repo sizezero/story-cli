@@ -7,17 +7,24 @@ fi
 
 ARG="$1"
 SCRIPT="story-cli"
+ALIAS="set-alias.sh"
 JAR="story-cli-assembly-0.1.0-SNAPSHOT.jar"
 SRC_SCRIPT="src/scripts"
 SRC_JAR="target/out/jvm/scala-3.9.0/story-cli"
-DST_SCRIPT="$HOME/bin/share/story-cli/$SRC_SCRIPT"
-DST_JAR="$HOME/bin/share/story-cli/$SRC_JAR"
+DST_DIR="$HOME/bin/share/story-cli"
+DST_SCRIPT="$DST_DIR/$SRC_SCRIPT"
+DST_JAR="$DST_DIR/$SRC_JAR"
 
 if [[ "$ARG" == "local"  ]]; then
 
     sbt clean    || exit 1
     sbt compile  || exit 1
     sbt assembly || exit 1
+
+    if [[ ! -e "$DST_DIR" ]]; then
+        mkdir -p "$DST_DIR"
+        ( cd "$DST_DIR" && ln -s "$DST_SCRIPT/$SCRIPT" $SCRIPT )
+    fi
 
     if [[ ! -e "$DST_SCRIPT" ]]; then
         mkdir -p "$DST_SCRIPT"
@@ -28,15 +35,26 @@ if [[ "$ARG" == "local"  ]]; then
     fi
 
     cp "$SRC_SCRIPT/$SCRIPT" "$DST_SCRIPT"
+    cp "$SRC_SCRIPT/$ALIAS"  "$DST_SCRIPT"
     cp "$SRC_JAR/$JAR"       "$DST_JAR"
 
 elif [[ "$ARG" == "hector" ]]; then
 
+    # Need to create one time directories on remote
+    # cd ~/bin/share
+    # rm story-cli -rf
+    # mkdir story-cli
+    # cd story-cli
+    # mkdir -p target/out/jvm/scala-3.9.0/story-cli/
+    # mkdir -p src/scripts
+    # ln -s src/scripts/story-cli
+
     # copy from already deployed local to remote
     # this makes it more likely that the local and remote are in sync
 
-    scp "$DST_SCRIPT/$SCRIPT" hector:$DST_SCRIPT
-    scp "$DST_JAR/$JAR"       hector:$DST_JAR
+    scp "$DST_SCRIPT/$SCRIPT" hector:$DST_SCRIPT/$SCRIPT
+    scp "$DST_SCRIPT/$ALIAS"  hector:$DST_SCRIPT/$ALIAS
+    scp "$DST_JAR/$JAR"    hector:$DST_JAR
 
 elif [[ "$ARG" == "asus" ]]; then
 

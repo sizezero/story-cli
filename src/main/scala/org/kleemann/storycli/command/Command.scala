@@ -110,6 +110,7 @@ object Command {
         ListCommand,
         NewCommand,
         CloneCommand,
+        ChdirCommand,
         SummaryCommand,
         AnalyzeCommand,
         BackupCommand,

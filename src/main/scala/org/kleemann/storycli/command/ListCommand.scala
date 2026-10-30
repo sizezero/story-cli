@@ -106,7 +106,10 @@ object ListCommand extends Command {
         }
     }
 
-    private def localList(go: GlobalOptions, premise: Boolean): Either[String, List[String]] = {
+    /**
+      * This is also used by ChdirCommand.
+      */
+    private[command] def localList(go: GlobalOptions, showPremise: Boolean, showStatus: Boolean): Either[String, List[String]] = {
 
         def oneLinePremise(dir: Path): String = {
             Premise.read(dir) match
@@ -146,8 +149,8 @@ object ListCommand extends Command {
                 val d = gitFile / os.up
                 List(
                     Some(d.subRelativeTo(sf.checkouts).toString),
-                    if (premise) Some(oneLinePremise(d)) else None,
-                    status(d)
+                    if (showPremise) Some(oneLinePremise(d)) else None,
+                    if (showStatus)  status(d)               else None
                 ).flatMap{ s => s } // remove Nones and unwrap Somes
             }.toList
 
@@ -158,7 +161,7 @@ object ListCommand extends Command {
         parse(go.rest) match {
             case Left(error) => Left(error)
             case Right(Args(premise, directory, false)) => remoteList(go, premise, directory)
-            case Right(Args(premise, _,         true )) => localList (go, premise)
+            case Right(Args(premise, _,         true )) => localList (go, premise, showStatus=true)
         }
     }
 }
