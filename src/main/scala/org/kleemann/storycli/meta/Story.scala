@@ -195,12 +195,12 @@ object Story {
     private val horizontalRuleRe = """^---$""".r
 
     private case class Builder(
-        prevLineNo:   Int                 = 0,
-        title:        Option[String]      = None,
+        prevLineNo:   Int            = 0,
+        title:        Option[String] = None,
         incidents:    List[Incident] = Nil, // reverse order
-        incidentName: Option[String]      = None,
+        incidentName: Option[String] = None,
         columns:      List[Column]   = Nil, // reverse order
-        wordCount:    Option[Int]         = None
+        wordCount:    Option[Int]    = None
     ) {
 
         def add(line: String): Either[String, Builder] = {
