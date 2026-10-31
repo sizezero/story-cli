@@ -38,7 +38,7 @@ if [[ "$ARG" == "local"  ]]; then
     cp "$SRC_SCRIPT/$ALIAS"  "$DST_SCRIPT"
     cp "$SRC_JAR/$JAR"       "$DST_JAR"
 
-elif [[ "$ARG" == "hector" ]]; then
+elif [[ "$ARG" == "hector" || "$ARG" == "asus" ]]; then
 
     # Need to create one time directories on remote
     # cd ~/bin/share
@@ -52,17 +52,10 @@ elif [[ "$ARG" == "hector" ]]; then
     # copy from already deployed local to remote
     # this makes it more likely that the local and remote are in sync
 
-    scp "$DST_SCRIPT/$SCRIPT" hector:$DST_SCRIPT/$SCRIPT
-    scp "$DST_SCRIPT/$ALIAS"  hector:$DST_SCRIPT/$ALIAS
-    scp "$DST_JAR/$JAR"    hector:$DST_JAR
-
-elif [[ "$ARG" == "asus" ]]; then
-
-    # copy from already deployed local to remote
-    # this makes it more likely that the local and remote are in sync
-
-    scp "$DST_SCRIPT/$SCRIPT" asus:$DST_SCRIPT
-    scp "$DST_JAR/$JAR"       asus:$DST_JAR
+    HOSTNAME="$ARG"
+    scp "$DST_SCRIPT/$SCRIPT" $HOSTNAME:$DST_SCRIPT/$SCRIPT
+    scp "$DST_SCRIPT/$ALIAS"  $HOSTNAME:$DST_SCRIPT/$ALIAS
+    scp "$DST_JAR/$JAR"       $HOSTNAME:$DST_JAR
 
 else
     echo "unexpected argument value: $ARG"

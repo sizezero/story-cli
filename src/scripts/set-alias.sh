@@ -1,5 +1,7 @@
 # this script should be called from .bashrc with:
-# source $HOME/bin/share/story-cli/src/scripts/set-alias.sh
+# if [ -e $HOME/bin/share/story-cli/src/scripts/set-alias.sh ]; then
+#     source $HOME/bin/share/story-cli/src/scripts/set-alias.sh
+# fi
 story-cli() {
     STORY_CLI_OUT=$($HOME/bin/share/story-cli/story-cli "$@")
     if [ $? -eq 0 ]; then
