@@ -1,61 +1,56 @@
 #!/bin/bash
 
+# exit on error
+set -e
+
 if [[ $# -ne 1 || ( "$1" != "local" && "$1" != "hector" && "$1" != "asus" ) ]]; then
     echo "usage: deploy ( local | hector | asus )"
     exit 1
 fi
 
 ARG="$1"
+
+SRC_SCRIPT_DIR="src/scripts"
+SRC_JAR_DIR="target/out/jvm/scala-3.9.0/story-cli"
+DST_DIR="$HOME/bin/share/story-cli"
+DST_JAR_DIR="$DST_DIR/$SRC_JAR_DIR"
+DST_SCRIPT_DIR="$DST_DIR/$SRC_SCRIPT_DIR"
+
 SCRIPT="story-cli"
 ALIAS="set-alias.sh"
+MKDIRS="story-cli-mk-client-dirs.sh"
 JAR="story-cli-assembly-0.1.0-SNAPSHOT.jar"
-SRC_SCRIPT="src/scripts"
-SRC_JAR="target/out/jvm/scala-3.9.0/story-cli"
-DST_DIR="$HOME/bin/share/story-cli"
-DST_SCRIPT="$DST_DIR/$SRC_SCRIPT"
-DST_JAR="$DST_DIR/$SRC_JAR"
 
 if [[ "$ARG" == "local"  ]]; then
 
-    sbt clean    || exit 1
-    sbt compile  || exit 1
-    sbt assembly || exit 1
+    sbt clean
+    sbt compile
+    sbt assembly
 
-    if [[ ! -e "$DST_DIR" ]]; then
-        mkdir -p "$DST_DIR"
-        ( cd "$DST_DIR" && ln -s "$DST_SCRIPT/$SCRIPT" $SCRIPT )
-    fi
+    $SRC_SCRIPT_DIR/$MKDIRS
 
-    if [[ ! -e "$DST_SCRIPT" ]]; then
-        mkdir -p "$DST_SCRIPT"
-    fi
-
-    if [[ ! -e "$DST_JAR" ]]; then
-        mkdir -p "$DST_JAR"
-    fi
-
-    cp "$SRC_SCRIPT/$SCRIPT" "$DST_SCRIPT"
-    cp "$SRC_SCRIPT/$ALIAS"  "$DST_SCRIPT"
-    cp "$SRC_JAR/$JAR"       "$DST_JAR"
+    cp "$SRC_SCRIPT_DIR/$SCRIPT" \
+        "$SRC_SCRIPT_DIR/$ALIAS" \
+        "$DST_SCRIPT_DIR"
+    cp "$SRC_JAR_DIR/$JAR" "$DST_JAR_DIR"
 
 elif [[ "$ARG" == "hector" || "$ARG" == "asus" ]]; then
-
-    # Need to create one time directories on remote
-    # cd ~/bin/share
-    # rm story-cli -rf
-    # mkdir story-cli
-    # cd story-cli
-    # mkdir -p target/out/jvm/scala-3.9.0/story-cli/
-    # mkdir -p src/scripts
-    # ln -s src/scripts/story-cli
 
     # copy from already deployed local to remote
     # this makes it more likely that the local and remote are in sync
 
     HOSTNAME="$ARG"
-    scp "$DST_SCRIPT/$SCRIPT" $HOSTNAME:$DST_SCRIPT/$SCRIPT
-    scp "$DST_SCRIPT/$ALIAS"  $HOSTNAME:$DST_SCRIPT/$ALIAS
-    scp "$DST_JAR/$JAR"       $HOSTNAME:$DST_JAR
+
+    # re-create remote directories
+    scp "$SRC_SCRIPT_DIR/$MKDIRS" $HOSTNAME:.
+    # run the script and remove it
+    CMD="/bin/bash -c '\"$HOME/$MKDIRS\" && rm \"$HOME/$MKDIRS\"'"
+    ssh $HOSTNAME "$CMD"
+
+    scp "$DST_SCRIPT_DIR/$SCRIPT" \
+        "$DST_SCRIPT_DIR/$ALIAS" \
+        $HOSTNAME:"$DST_SCRIPT_DIR"
+    scp "$DST_JAR_DIR/$JAR" $HOSTNAME:$DST_JAR_DIR
 
 else
     echo "unexpected argument value: $ARG"
