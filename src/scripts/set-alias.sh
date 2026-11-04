@@ -7,8 +7,10 @@ story-cli() {
     if [ $? -eq 0 ]; then
         if [[ "$STORY_CLI_OUT" == "chdir "* ]]; then
             cd "$HOME/stories/checkouts/${STORY_CLI_OUT#chdir }"
+            # if story-cli cd command succeeded, don't show the "chdir foo" output
+        else
+            echo "$STORY_CLI_OUT"
         fi
-        echo "$STORY_CLI_OUT"
         unset STORY_CLI_OUT
         return 0
     else
