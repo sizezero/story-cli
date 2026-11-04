@@ -16,3 +16,6 @@ mkdir -p target/out/jvm/scala-3.9.0/story-cli/
 mkdir -p src/scripts
 # link will be dangling until story-cli is deployed
 ln -s src/scripts/story-cli
+
+cd $HOME/bin
+ln -sf share/story-cli/story-cli
